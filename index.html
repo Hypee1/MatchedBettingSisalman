@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f1419">
+  <title>Matched Betting – Biagio & Co.</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
+</head>
+<body>
+  <!-- ========== LOGIN ========== -->
+  <div id="login-screen" class="screen active">
+    <div class="login-card">
+      <div class="logo">⚽</div>
+      <h1>Matched Betting</h1>
+      <p class="subtitle">Seleziona utente e inserisci PIN</p>
+
+      <div id="user-list" class="user-list"></div>
+
+      <div id="pin-section" class="pin-section" hidden>
+        <p id="pin-user-name" class="pin-label"></p>
+        <input type="password" id="pin-input" inputmode="numeric" maxlength="6" placeholder="PIN (6 cifre)" autocomplete="off">
+        <div class="pin-actions">
+          <button type="button" id="btn-login" class="btn primary">Entra</button>
+          <button type="button" id="btn-cancel-pin" class="btn ghost">Annulla</button>
+        </div>
+        <p id="pin-error" class="error" hidden></p>
+      </div>
+
+      <div class="login-footer">
+        <button type="button" id="btn-add-user" class="btn outline small">+ Nuovo utente</button>
+        <button type="button" id="btn-manage-users" class="btn ghost small">Gestisci utenti</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== ADD USER MODAL ========== -->
+  <div id="modal-add-user" class="modal" hidden>
+    <div class="modal-content">
+      <h2>Nuovo utente</h2>
+      <label>Nome</label>
+      <input type="text" id="new-user-name" placeholder="Es. Marco" maxlength="20" autocomplete="off">
+      <label>PIN (6 cifre)</label>
+      <input type="password" id="new-user-pin" inputmode="numeric" maxlength="6" placeholder="123456" autocomplete="off">
+      <label class="checkbox-label">
+        <input type="checkbox" id="new-user-admin"> Admin (può modificare calcoli)
+      </label>
+      <div class="modal-actions">
+        <button type="button" id="btn-save-user" class="btn primary">Salva</button>
+        <button type="button" class="btn ghost btn-close-modal">Annulla</button>
+      </div>
+      <p id="add-user-error" class="error" hidden></p>
+    </div>
+  </div>
+
+  <!-- ========== MANAGE USERS MODAL ========== -->
+  <div id="modal-manage-users" class="modal" hidden>
+    <div class="modal-content">
+      <h2>Gestisci utenti</h2>
+      <div id="manage-user-list"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn ghost btn-close-modal">Chiudi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== APP ========== -->
+  <div id="app-screen" class="screen">
+    <header class="app-header">
+      <div class="header-left">
+        <span class="user-avatar" id="header-avatar">B</span>
+        <div>
+          <strong id="header-name">Biagio</strong>
+          <span class="badge" id="header-role">Admin</span>
+        </div>
+      </div>
+      <button type="button" id="btn-logout" class="btn ghost small">Esci</button>
+    </header>
+
+    <nav class="bottom-nav">
+      <button type="button" class="nav-btn active" data-tab="wallet">
+        <span class="nav-icon">💰</span>
+        <span>Wallet</span>
+      </button>
+      <button type="button" class="nav-btn" data-tab="debts">
+        <span class="nav-icon">🤝</span>
+        <span>Debiti</span>
+      </button>
+      <button type="button" class="nav-btn" data-tab="calcoli">
+        <span class="nav-icon">📊</span>
+        <span>Calcoli</span>
+      </button>
+      <button type="button" class="nav-btn" data-tab="log">
+        <span class="nav-icon">📝</span>
+        <span>Log</span>
+      </button>
+    </nav>
+
+    <main class="app-main">
+      <!-- WALLET TAB -->
+      <section id="tab-wallet" class="tab active">
+        <div class="card balance-card">
+          <p class="muted">Saldo stimato</p>
+          <h2 id="wallet-balance">0,00 €</h2>
+          <div class="balance-actions">
+            <button type="button" id="btn-add-deposit" class="btn primary small">+ Deposito</button>
+            <button type="button" id="btn-add-withdraw" class="btn outline small">− Prelievo</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Movimenti</h3>
+            <select id="filter-movements" class="select-sm">
+              <option value="all">Tutti</option>
+              <option value="deposit">Depositi</option>
+              <option value="withdraw">Prelievi</option>
+            </select>
+          </div>
+          <div id="movements-list" class="list"></div>
+        </div>
+      </section>
+
+      <!-- DEBTS TAB -->
+      <section id="tab-debts" class="tab">
+        <div class="card">
+          <h3>Chi mi deve / a chi devo</h3>
+          <div id="debts-summary" class="debts-summary"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3>Tutti i debiti</h3>
+            <button type="button" id="btn-add-debt" class="btn primary small">+ Aggiungi</button>
+          </div>
+          <div id="debts-list" class="list"></div>
+        </div>
+      </section>
+
+      <!-- CALCOLI TAB -->
+      <section id="tab-calcoli" class="tab">
+        <div id="calcoli-expired" class="alert" hidden>Periodo scaduto – i dati sono stati resettati.</div>
+
+        <div class="card" id="calcoli-config">
+          <h3>Configurazione periodo</h3>
+          <p class="muted small" id="calcoli-readonly-note" hidden>Solo visualizzazione (solo l'admin può modificare)</p>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="calc-start">Data inizio</label>
+              <input type="date" id="calc-start">
+            </div>
+            <div class="field">
+              <label for="calc-days">Durata (giorni)</label>
+              <input type="number" id="calc-days" min="1" max="365" value="30">
+            </div>
+            <div class="field">
+              <label for="calc-tassa">Tassa totale inizio (€)</label>
+              <input type="text" id="calc-tassa" inputmode="decimal" placeholder="0">
+            </div>
+            <div class="field">
+              <label for="calc-quota">Quota a testa (€)</label>
+              <input type="text" id="calc-quota" inputmode="decimal" placeholder="0">
+            </div>
+            <div class="field">
+              <label for="calc-vincita">Vincita netta Eurobet (€)</label>
+              <input type="text" id="calc-vincita" inputmode="decimal" placeholder="0">
+            </div>
+            <div class="field">
+              <label for="calc-persone">N° persone</label>
+              <input type="number" id="calc-persone" min="1" max="10" value="3">
+            </div>
+            <div class="field">
+              <label for="calc-budget">Budget max a testa (€)</label>
+              <input type="text" id="calc-budget" inputmode="decimal" placeholder="280">
+            </div>
+            <div class="field">
+              <label for="calc-vincita-altro">Vincita altro sito (€)</label>
+              <input type="text" id="calc-vincita-altro" inputmode="decimal" placeholder="0">
+            </div>
+          </div>
+          <p class="meta" id="calc-scadenza"></p>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Step coperture</h3>
+            <button type="button" id="btn-add-step" class="btn outline small">+ Step</button>
+          </div>
+          <div id="steps-container"></div>
+        </div>
+
+        <div class="card final-card">
+          <div>
+            <strong>Se vince Eurobet fino in fondo</strong>
+            <div class="meta" id="final-meta"></div>
+          </div>
+          <div class="out" id="final-out">–</div>
+        </div>
+
+        <div class="calc-actions" id="calc-actions">
+          <button type="button" id="btn-save-calc" class="btn primary">Salva calcoli</button>
+          <button type="button" id="btn-reset-calc" class="btn ghost">Ripristina default</button>
+        </div>
+      </section>
+
+      <!-- LOG TAB -->
+      <section id="tab-log" class="tab">
+        <div class="card">
+          <div class="card-header">
+            <h3>Log attività</h3>
+            <button type="button" id="btn-clear-log" class="btn ghost small">Pulisci</button>
+          </div>
+          <div id="log-list" class="list"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ========== DEPOSIT MODAL ========== -->
+  <div id="modal-deposit" class="modal" hidden>
+    <div class="modal-content">
+      <h2>Nuovo deposito</h2>
+      <label>Sito / Bookmaker</label>
+      <input type="text" id="dep-site" placeholder="Es. Eurobet, Betfair..." autocomplete="off">
+      <label>Importo (€)</label>
+      <input type="text" id="dep-amount" inputmode="decimal" placeholder="0,00">
+      <label>Data</label>
+      <input type="date" id="dep-date">
+      <label>Note (opzionale)</label>
+      <input type="text" id="dep-note" placeholder="..." autocomplete="off">
+      <label class="checkbox-label">
+        <input type="checkbox" id="dep-split"> Dividere con gli altri?
+      </label>
+      <div id="dep-split-users" class="split-users" hidden></div>
+      <div class="modal-actions">
+        <button type="button" id="btn-save-deposit" class="btn primary">Salva</button>
+        <button type="button" class="btn ghost btn-close-modal">Annulla</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== WITHDRAW MODAL ========== -->
+  <div id="modal-withdraw" class="modal" hidden>
+    <div class="modal-content">
+      <h2>Nuovo prelievo</h2>
+      <label>Sito / Bookmaker</label>
+      <input type="text" id="wit-site" placeholder="Es. Eurobet..." autocomplete="off">
+      <label>Banca / Destinazione</label>
+      <input type="text" id="wit-bank" placeholder="Es. Revolut, Intesa..." autocomplete="off">
+      <label>Importo (€)</label>
+      <input type="text" id="wit-amount" inputmode="decimal" placeholder="0,00">
+      <label>Data</label>
+      <input type="date" id="wit-date">
+      <label>Note (opzionale)</label>
+      <input type="text" id="wit-note" placeholder="..." autocomplete="off">
+      <label class="checkbox-label">
+        <input type="checkbox" id="wit-split"> Dividere con gli altri?
+      </label>
+      <div id="wit-split-users" class="split-users" hidden></div>
+      <div class="modal-actions">
+        <button type="button" id="btn-save-withdraw" class="btn primary">Salva</button>
+        <button type="button" class="btn ghost btn-close-modal">Annulla</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== DEBT MODAL ========== -->
+  <div id="modal-debt" class="modal" hidden>
+    <div class="modal-content">
+      <h2>Aggiungi debito</h2>
+      <label>Chi deve</label>
+      <select id="debt-from"></select>
+      <label>A chi</label>
+      <select id="debt-to"></select>
+      <label>Importo (€)</label>
+      <input type="text" id="debt-amount" inputmode="decimal" placeholder="0,00">
+      <label>Motivo</label>
+      <input type="text" id="debt-reason" placeholder="Es. copertura step 3" autocomplete="off">
+      <label>Data</label>
+      <input type="date" id="debt-date">
+      <div class="modal-actions">
+        <button type="button" id="btn-save-debt" class="btn primary">Salva</button>
+        <button type="button" class="btn ghost btn-close-modal">Annulla</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
