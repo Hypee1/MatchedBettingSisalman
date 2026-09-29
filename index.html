@@ -1,24 +1,72 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0d1014">
-<title>Matched Betting · Sisalman</title>
-<link rel="stylesheet" href="css/style.css">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e14">
+  <title>MB Portal – Matched Betting</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 </head>
 <body>
-<div id="boot" style="padding:40px 20px;text-align:center;font-family:system-ui;color:#888">Caricamento… <br><small>Se resti su questa schermata, controlla che <b>js/script.js</b> e <b>css/style.css</b> siano nelle cartelle giuste e svuota la cache (Ctrl+F5).</small></div>
-<div id="login" class="login" hidden></div>
-<div id="app" hidden>
-  <header class="top"><div class="who"><span class="av" id="av"></span><b id="nm"></b></div><button class="btn" data-a="out">Esci</button></header>
-  <main id="view"></main>
-  <nav class="nav" id="nav"></nav>
-</div>
-<div id="modal" class="modal" hidden></div>
-<input type="file" id="imp" accept=".json" hidden>
-<script src="js/script.js"></script>
-<script>window.addEventListener("error",function(e){var b=document.getElementById("boot");if(b)b.innerHTML="Errore: "+e.message+" ("+(e.filename||"").split("/").pop()+":"+e.lineno+")"})</script>
+  <div id="screen-login" class="screen active">
+    <div class="login-box">
+      <div class="brand">⚡ MB Portal</div>
+      <p class="login-sub">Matched Betting · Wallet · Freebet · Inviti</p>
+      <div id="user-grid" class="user-grid"></div>
+      <div id="pin-box" class="pin-box" hidden>
+        <p id="pin-label" class="pin-label"></p>
+        <input type="password" id="pin-input" inputmode="numeric" maxlength="6" placeholder="PIN" autocomplete="off">
+        <div class="row-btns">
+          <button type="button" id="btn-enter" class="btn btn-primary">Entra</button>
+          <button type="button" id="btn-pin-back" class="btn btn-ghost">Indietro</button>
+        </div>
+        <p id="pin-err" class="err" hidden></p>
+      </div>
+      <div class="login-tools">
+        <button type="button" id="btn-new-user" class="btn btn-outline btn-sm">+ Utente</button>
+        <button type="button" id="btn-manage" class="btn btn-ghost btn-sm">Gestisci</button>
+      </div>
+    </div>
+  </div>
+  <div id="screen-app" class="screen">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="avatar" id="hdr-avatar">B</span>
+        <div>
+          <strong id="hdr-name">—</strong>
+          <span class="tag" id="hdr-role" hidden>Admin</span>
+        </div>
+      </div>
+      <button type="button" id="btn-logout" class="btn btn-ghost btn-sm">Esci</button>
+    </header>
+    <nav class="tabs">
+      <button type="button" class="tab-btn active" data-tab="home">Home</button>
+      <button type="button" class="tab-btn" data-tab="wallet">Wallet</button>
+      <button type="button" class="tab-btn" data-tab="debts">Debiti</button>
+      <button type="button" class="tab-btn" data-tab="calc">Calcoli</button>
+      <button type="button" class="tab-btn" data-tab="invites">Inviti</button>
+      <button type="button" class="tab-btn" data-tab="log">Log</button>
+    </nav>
+    <main class="content">
+      <section id="tab-home" class="panel active"><div class="stats-row"><div class="stat-card"><span class="stat-label">Banca</span><span class="stat-val" id="home-bank">0,00 €</span></div><div class="stat-card"><span class="stat-label">Sui book</span><span class="stat-val" id="home-books">0,00 €</span></div><div class="stat-card"><span class="stat-label">P&amp;L netto</span><span class="stat-val" id="home-pnl">0,00 €</span></div></div><div class="card"><h3>Debiti in sospeso</h3><div id="home-debts" class="mini-list"></div></div><div class="card"><h3>Ultimi movimenti</h3><div id="home-movs" class="mini-list"></div></div></section>
+      <section id="tab-wallet" class="panel"><div class="card highlight"><div class="wallet-summary"><div><span class="muted">Totale stimato</span><div class="big" id="w-total">0,00 €</div></div><div class="wallet-split"><div><span class="muted">Banca</span><div id="w-bank">0,00 €</div></div><div><span class="muted">Bookmaker</span><div id="w-books">0,00 €</div></div><div><span class="muted">P&amp;L</span><div id="w-pnl">0,00 €</div></div></div></div><div class="row-btns mt"><button type="button" id="btn-dep" class="btn btn-primary btn-sm">+ Deposito</button><button type="button" id="btn-wit" class="btn btn-outline btn-sm">− Prelievo</button><button type="button" id="btn-adj" class="btn btn-ghost btn-sm">± Aggiusta</button></div></div><div class="card"><div class="card-head"><h3>Conti bookmaker</h3><button type="button" id="btn-add-book" class="btn btn-outline btn-sm">+ Conto</button></div><div id="books-list" class="list"></div></div><div class="card"><div class="card-head"><h3>Movimenti</h3><select id="mov-filter" class="sel-sm"><option value="all">Tutti</option><option value="deposit">Depositi</option><option value="withdraw">Prelievi</option><option value="adjust">Aggiustamenti</option></select></div><div id="movs-list" class="list"></div></div></section>
+      <section id="tab-debts" class="panel"><div class="card"><h3>Riepilogo</h3><div id="debts-sum" class="debts-chips"></div></div><div class="card"><div class="card-head"><h3>Elenco debiti</h3><button type="button" id="btn-add-debt" class="btn btn-primary btn-sm">+ Debito</button></div><div id="debts-list" class="list"></div></div></section>
+      <section id="tab-calc" class="panel"><div id="calc-expired" class="alert" hidden>Periodo scaduto – dati resettati.</div><div class="card" id="calc-cfg"><div class="card-head"><h3>Configurazione freebet</h3><span class="tag" id="calc-ro" hidden>Sola lettura</span></div><div class="grid-2"><div class="field"><label>Data inizio</label><input type="date" id="c-start"></div><div class="field"><label>Durata (gg)</label><input type="number" id="c-days" min="1" max="365" value="30"></div><div class="field"><label>Freebet / Bonus (€)</label><input type="text" id="c-freebet" inputmode="decimal" placeholder="100"></div><div class="field"><label>Tassa / QL qualifica (€)</label><input type="text" id="c-tassa" inputmode="decimal" placeholder="13"></div><div class="field"><label>Vincita netta se tutto vince (€)</label><input type="text" id="c-vincita" inputmode="decimal" placeholder="905"></div><div class="field"><label>Budget max a testa (€)</label><input type="text" id="c-budget" inputmode="decimal" placeholder="280"></div></div><div class="field mt"><label>Partecipanti (nomi, separati da virgola)</label><input type="text" id="c-persone" placeholder="Biagio, Mario, Leonardo"></div><p class="meta" id="c-scadenza"></p></div><div class="card"><div class="card-head"><h3>Step copertura</h3><button type="button" id="btn-add-step" class="btn btn-outline btn-sm">+ Step</button></div><div id="steps-box"></div></div><div class="card final-row"><div><strong>Se vince Eurobet fino in fondo</strong><div class="meta" id="final-meta"></div></div><div class="out" id="final-out">–</div></div><div class="row-btns" id="calc-actions"><button type="button" id="btn-save-calc" class="btn btn-primary">Salva</button><button type="button" id="btn-reset-calc" class="btn btn-ghost">Default</button></div></section>
+      <section id="tab-invites" class="panel"><div class="card"><div class="card-head"><h3>Inviti / Referral</h3><button type="button" id="btn-add-invite" class="btn btn-primary btn-sm">+ Invito</button></div><p class="muted small">Inviti su Snai, Sisal, Eurobet… deposito anticipato, bonus e profitto.</p><div id="invites-list" class="list"></div></div></section>
+      <section id="tab-log" class="panel"><div class="card"><div class="card-head"><h3>Log attività</h3><button type="button" id="btn-clear-log" class="btn btn-ghost btn-sm">Pulisci</button></div><div id="log-list" class="list"></div><div id="ip-log-box" hidden><h4 class="mt">Accessi (solo admin)</h4><div id="ip-list" class="list"></div></div></div></section>
+    </main>
+  </div>
+  <div id="modal-user" class="modal" hidden><div class="modal-sheet"><h2>Nuovo utente</h2><label>Nome</label><input type="text" id="nu-name" maxlength="20" autocomplete="off"><label>PIN (4-6 cifre)</label><input type="password" id="nu-pin" inputmode="numeric" maxlength="6" autocomplete="off"><label class="chk"><input type="checkbox" id="nu-admin"> Admin</label><div class="row-btns mt"><button type="button" id="btn-save-user" class="btn btn-primary">Salva</button><button type="button" class="btn btn-ghost btn-close">Annulla</button></div><p id="nu-err" class="err" hidden></p></div></div>
+  <div id="modal-manage" class="modal" hidden><div class="modal-sheet"><h2>Gestisci utenti</h2><div id="manage-list"></div><div class="row-btns mt"><button type="button" class="btn btn-ghost btn-close">Chiudi</button></div></div></div>
+  <div id="modal-dep" class="modal" hidden><div class="modal-sheet"><h2>Deposito</h2><label>Bookmaker / Sito</label><input type="text" id="d-site" list="book-dl" placeholder="Eurobet, Snai…" autocomplete="off"><label>Importo (€)</label><input type="text" id="d-amt" inputmode="decimal"><label>Data</label><input type="date" id="d-date"><label>Note</label><input type="text" id="d-note" autocomplete="off"><label class="chk"><input type="checkbox" id="d-split"> Dividere con altri?</label><div id="d-split-box" class="split-box" hidden></div><div class="row-btns mt"><button type="button" id="btn-ok-dep" class="btn btn-primary">Salva</button><button type="button" class="btn btn-ghost btn-close">Annulla</button></div></div></div>
+  <div id="modal-wit" class="modal" hidden><div class="modal-sheet"><h2>Prelievo</h2><label>Bookmaker / Sito</label><input type="text" id="w-site" list="book-dl" placeholder="Eurobet…" autocomplete="off"><label>Banca / Destinazione</label><input type="text" id="w-bank" placeholder="Revolut, Intesa…" autocomplete="off"><label>Importo (€)</label><input type="text" id="w-amt" inputmode="decimal"><label>Data</label><input type="date" id="w-date"><label>Note</label><input type="text" id="w-note" autocomplete="off"><label class="chk"><input type="checkbox" id="w-split"> Dividere con altri?</label><div id="w-split-box" class="split-box" hidden></div><div class="row-btns mt"><button type="button" id="btn-ok-wit" class="btn btn-primary">Salva</button><button type="button" class="btn btn-ghost btn-close">Annulla</button></div></div></div>
+  <div id="modal-adj" class="modal" hidden><div class="modal-sheet"><h2>Aggiustamento saldo</h2><label>Bookmaker (vuoto = banca)</label><input type="text" id="a-site" list="book-dl" placeholder="Lascia vuoto per banca" autocomplete="off"><label>Importo (+ o −)</label><input type="text" id="a-amt" inputmode="decimal" placeholder="es. -5 o 10"><label>Motivo</label><input type="text" id="a-note" placeholder="Correzione, commissione…" autocomplete="off"><label>Data</label><input type="date" id="a-date"><div class="row-btns mt"><button type="button" id="btn-ok-adj" class="btn btn-primary">Salva</button><button type="button" class="btn btn-ghost btn-close">Annulla</button></div></div></div>
+  <div id="modal-book" class="modal" hidden><div class="modal-sheet"><h2>Nuovo conto</h2><label>Nome bookmaker</label><input type="text" id="b-name" placeholder="Eurobet, Betfair…" autocomplete="off"><label>Saldo iniziale (€)</label><input type="text" id="b-bal" inputmode="decimal" value="0"><div class="row-btns mt"><button type="button" id="btn-ok-book" class="btn btn-primary">Aggiungi</button><button type="button" class="btn btn-ghost btn-close">Annulla</button></div></div></div>
+  <div id="modal-debt" class="modal" hidden><div class="modal-sheet"><h2>Nuovo debito</h2><label>Chi deve</label><select id="debt-from"></select><label>A chi</label><select id="debt-to"></select><label>Importo (€)</label><input type="text" id="debt-amt" inputmode="decimal"><label>Motivo</label><input type="text" id="debt-reason" autocomplete="off"><label>Data</label><input type="date" id="debt-date"><div class="row-btns mt"><button type="button" id="btn-ok-debt" class="btn btn-primary">Salva</button><button type="button" class="btn btn-ghost btn-close">Annulla</button></div></div></div>
+  <div id="modal-invite" class="modal" hidden><div class="modal-sheet"><h2>Nuovo invito</h2><label>Sito (Snai, Sisal…)</label><input type="text" id="inv-site" list="book-dl" autocomplete="off"><label>Nome invitato</label><input type="text" id="inv-name" autocomplete="off"><label>Deposito anticipato (€)</label><input type="text" id="inv-dep" inputmode="decimal" placeholder="Soldi dati all'invitato"><label>Bonus ottenuto (€)</label><input type="text" id="inv-bonus" inputmode="decimal"><label>Profitto stimato / realizzato (€)</label><input type="text" id="inv-profit" inputmode="decimal" placeholder="0"><label>Stato</label><select id="inv-status"><option value="pending">In corso</option><option value="done">Completato</option><option value="lost">Perso / scaduto</option></select><label>Note</label><input type="text" id="inv-note" autocomplete="off"><label>Data</label><input type="date" id="inv-date"><div class="row-btns mt"><button type="button" id="btn-ok-invite" class="btn btn-primary">Salva</button><button type="button" class="btn btn-ghost btn-close">Annulla</button></div></div></div>
+  <div id="modal-edit-mov" class="modal" hidden><div class="modal-sheet"><h2>Modifica movimento</h2><input type="hidden" id="em-id"><label>Sito</label><input type="text" id="em-site" list="book-dl"><label>Importo (€)</label><input type="text" id="em-amt" inputmode="decimal"><label>Data</label><input type="date" id="em-date"><label>Note</label><input type="text" id="em-note"><div class="row-btns mt"><button type="button" id="btn-ok-edit-mov" class="btn btn-primary">Salva</button><button type="button" class="btn btn-ghost btn-close">Annulla</button></div></div></div>
+  <datalist id="book-dl"><option value="Eurobet"><option value="Snai"><option value="Sisal"><option value="Bet365"><option value="Betfair"><option value="Goldbet"><option value="Planetwin365"><option value="ScommesseItalia"></datalist>
+  <script src="js/script.js"></script>
 </body>
 </html>
