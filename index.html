@@ -9,6 +9,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
 </head>
 <body>
+<div id="boot" style="padding:40px 20px;text-align:center;font-family:system-ui;color:#888">Caricamento… <br><small>Se resti su questa schermata, controlla che <b>js/script.js</b> e <b>css/style.css</b> siano nelle cartelle giuste e svuota la cache (Ctrl+F5).</small></div>
 <div id="login" class="login" hidden></div>
 <div id="app" hidden>
   <header class="top"><div class="who"><span class="av" id="av"></span><b id="nm"></b></div><button class="btn" data-a="out">Esci</button></header>
@@ -18,5 +19,6 @@
 <div id="modal" class="modal" hidden></div>
 <input type="file" id="imp" accept=".json" hidden>
 <script src="js/script.js"></script>
+<script>window.addEventListener("error",function(e){var b=document.getElementById("boot");if(b)b.innerHTML="Errore: "+e.message+" ("+(e.filename||"").split("/").pop()+":"+e.lineno+")"})</script>
 </body>
 </html>
