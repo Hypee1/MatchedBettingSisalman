@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Note &amp; Wallet</title>
+<style>
+:root{--bg:#eef1f4;--card:#fff;--ink:#1b2430;--muted:#64707f;--line:#d5dbe2;--field:#f5f7fa;--accent:#1d5c8c;--pos:#12703f;--neg:#b3261e;--neg-bg:#fbe7e5;--ok-bg:#e3f4ea}
+@media(prefers-color-scheme:dark){:root{--bg:#12171d;--card:#1b222b;--ink:#e8edf2;--muted:#97a3b1;--line:#2e3844;--field:#232c37;--accent:#6fb3e6;--pos:#6fd39b;--neg:#ff8a80;--neg-bg:#3d1e1c;--ok-bg:#16301f}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) 0 env(safe-area-inset-left,0)}
+.wrap{max-width:560px;margin:0 auto;padding:12px 12px 120px}
+h1{font-size:1.2rem;margin:8px 0 12px}h2{font-size:1rem;margin:0 0 8px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:8px;padding:10px;min-height:44px;width:100%}
+textarea{min-height:70px;resize:vertical}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent)}
+input:disabled,select:disabled{opacity:.6}
+.card,.step,.params,.final{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.params{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cell label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:3px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0}
+.tabs{display:flex;gap:6px;margin:6px 0 4px}
+.tab{flex:1;min-height:44px;font:inherit;font-weight:600;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;cursor:pointer}
+.tab.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.ptabs{display:flex;gap:6px;overflow-x:auto;margin:8px 0;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+.ptab{flex:0 0 auto;min-height:40px;font:inherit;font-weight:600;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:0 14px;cursor:pointer;white-space:nowrap}
+.ptab.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn{min-height:44px;font:inherit;font-weight:600;cursor:pointer;background:var(--card);color:var(--accent);border:1px solid var(--line);border-radius:10px;padding:0 14px}
+.btn.pri{background:var(--accent);color:#fff;border-color:var(--accent)}.btn.on{background:var(--accent);color:#fff}
+.btn.del{color:var(--neg)}.btn[disabled]{opacity:.4;cursor:default}
+.actions{display:flex;gap:8px}.actions>*{flex:1}
+.x{background:none;border:0;color:var(--neg);font-size:1.1rem;cursor:pointer;min-width:36px;min-height:36px}
+.pos{color:var(--pos)}.neg{color:var(--neg)}.muted{color:var(--muted)}
+.big{font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.three{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:8px}
+.li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line)}
+.li:first-of-type{border-top:0}
+.alert{background:var(--neg-bg);color:var(--neg);border:1px solid var(--neg);border-radius:12px;padding:10px 12px;margin-bottom:10px;font-weight:600}
+.ok{background:var(--ok-bg);border:1px solid var(--pos);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+.step.over{border-color:var(--neg);background:var(--neg-bg)}
+.head{display:flex;align-items:center;gap:8px;margin-bottom:8px}.head .n{font-weight:700;white-space:nowrap}
+.head input{border-color:transparent;background:transparent}.head input:focus{background:var(--field);border-color:var(--line)}
+.row{display:grid;grid-template-columns:1fr 1.3fr 1.2fr;gap:8px;align-items:end}
+.row input{text-align:right}
+.out{min-height:44px;display:flex;align-items:center;justify-content:flex-end;font-size:1.1rem;font-weight:700;font-variant-numeric:tabular-nums}
+.meta{margin-top:6px;color:var(--muted);font-size:.86rem}
+.chk{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:.92rem}.chk input{width:22px;min-height:22px;height:22px}
+.sb{border:1px solid var(--line);border-radius:10px;padding:8px;margin-bottom:8px}.sb input{margin-bottom:6px}.sb .head{margin-bottom:6px}.pw{display:flex;gap:6px}.pw input{margin:0}.pw .btn{padding:0 10px;white-space:nowrap}
+fieldset{border:0;padding:0;margin:0;min-width:0}
+.sbar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;align-items:center;max-width:560px;margin:0 auto}
+.sbar .msg{flex:1;font-size:.88rem}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:10}
+.modal .box{background:var(--card);border-radius:14px;padding:18px;max-width:380px;width:100%}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+(function(){
+/* ===== CONFIG FIREBASE: incolla qui i valori del tuo progetto (vedi README.md) ===== */
+var CFG={
+  apiKey:'AIzaSyBn2lLb0WdJgbDYoVfeZ9Zq6Tvgr6skmXk',
+  authDomain:'metchedbased.firebaseapp.com',
+  projectId:'metchedbased',
+  appId:'1:985086225077:web:2b87c309f39d6201962cfc'
+};
+/* Email dei due utenti creati in Firebase > Authentication. La password e' il codice a 6 cifre. */
+var EM={biagio:'biagio@bb-wallet.app',mario:'mario@bb-wallet.app'};
+/* ================================================================================== */
+
+var $=function(s){return document.querySelector(s)};
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var num=function(v){var n=parseFloat(String(v==null?'':v).replace(',','.'));return isFinite(n)?n:0};
+var eur=function(n){return n.toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'};
+var sg=function(n){return(n>=0?'+':'−')+eur(Math.abs(n))};
+var NAMES={biagio:'Biagio',mario:'Mario'};
+var me=null,tab='wallet',docs={},view,notified={},cpage=0;
+
+if(CFG.apiKey==='INCOLLA_QUI'){
+  document.getElementById('root').innerHTML='<div class="wrap"><h1>Configurazione mancante</h1><div class="alert">Apri index.html e incolla la configurazione Firebase in cima allo script (vedi README.md).</div></div>';
+  return;
+}
+
+/* ---------- LIVELLO DATI (Firebase al posto di api.php) ---------- */
+firebase.initializeApp(CFG);
+var auth=firebase.auth(),db=firebase.firestore(),col=db.collection('bb');
+var ref=function(n){return col.doc(n)};
+var NOW=function(){return Math.floor(Date.now()/1000)};
+function nid(){var a=new Uint8Array(6);crypto.getRandomValues(a);return[].map.call(a,function(b){return('0'+b.toString(16)).slice(-2)}).join('')}
+function clean(x){return JSON.parse(JSON.stringify(x))}
+function uOf(user){if(!user)return null;for(var k in EM)if(EM[k]===user.email)return k;return null}
+function wDef(){return{entries:[],ops:[],notes:[]}}
+function wFrom(s){return s.exists?Object.assign(wDef(),s.data()):wDef()}
+function wGet(u){return ref('w_'+u).get().then(wFrom)}
+function wMod(u,fn){var r=ref('w_'+u);return db.runTransaction(function(t){return t.get(r).then(function(s){var w=wFrom(s);fn(w);t.set(r,w)})}).then(function(){return{ok:1}})}
+function ent(amt,desc,auto){return{id:nid(),ts:NOW(),amount:Math.round(amt*100)/100,desc:desc,auto:!!auto}}
+function trFrom(s){return s.exists?(s.data().list||[]):[]}
+function bad(m){throw new Error(m)}
+
+function newPage(name,from){
+  return{id:nid(),name:name,budget:from?from.budget:'400',persone:from?from.persone:'2',vincita:'',qualifica:'0',steps:[{partita:'',quota:'',puntata:'',nonCop:false,vinta:false}]};
+}
+/* Dati iniziali: vengono creati una sola volta, solo se mancano nel database */
+function seedItems(){
+  var ts=Date.UTC(2026,9,13,10,0,0)/1000;
+  var ops=[['AVIATOR SNAI PERSO TRAPANI',60,50],['Snai Miriam',60,0],['Sisal Miriam',25,0],['Eurobet Nives',100,0]].map(function(o,i){return{id:nid(),ts:ts+i,sito:o[0],caricato:o[1],tornato:o[2]}});
+  var calc={id:nid(),name:'Calcolo attuale',budget:'400',persone:'2',vincita:'880',qualifica:'0',steps:[
+    {partita:'',quota:'',puntata:'',nonCop:true,vinta:false},
+    {partita:'',quota:'',puntata:'63',nonCop:false,vinta:true},
+    {partita:'viking - bayern U 1,5 2T Ospite',quota:'2.35',puntata:'117',nonCop:false,vinta:false},
+    {partita:'LASK - LIVERPOOL U 1.5 2 tempo',quota:'2.35',puntata:'204',nonCop:false,vinta:false},
+    {partita:'Manchster city - PSG U 1.5 2 tempo',quota:'2.15',puntata:'416',nonCop:false,vinta:false}]};
+  return{
+    w_biagio:{entries:[],ops:ops,notes:[]},
+    w_mario:wDef(),
+    tr:{list:[{id:nid(),ts:ts,from:'biagio',to:'mario',amount:0.1,status:'no'}]},
+    calc:{rev:1,data:{pages:[calc]},by:'biagio',ts:ts},
+    clients:{rev:1,data:{list:[]},by:'biagio',ts:ts}
+  };
+}
+function seed(){
+  var it=seedItems();
+  return Promise.all(Object.keys(it).map(function(k){var r=ref(k);return db.runTransaction(function(t){return t.get(r).then(function(s){if(!s.exists)t.set(r,it[k])})})}));
+}
+function authErr(e){
+  var c=e&&e.code||'';
+  if(c==='auth/too-many-requests')return new Error('Troppi tentativi, riprova tra qualche minuto');
+  if(c==='auth/network-request-failed')return new Error('Nessuna connessione');
+  if(/auth\//.test(c))return new Error('Codice errato');
+  return e;
+}
+
+function api(a,p){
+  p=p||{};var other=me==='biagio'?'mario':'biagio';
+  switch(a){
+    case 'me':return new Promise(function(res){var un=auth.onAuthStateChanged(function(user){un();var u=uOf(user);if(u)seed().then(function(){res({u:u})},function(){res({u:u})});else res({u:null})})});
+    case 'login':
+      if(!EM[p.u])return Promise.reject(new Error('Utente non valido'));
+      return auth.signInWithEmailAndPassword(EM[p.u],String(p.pin||'')).then(function(){return seed()}).then(function(){return{u:p.u}},function(e){throw authErr(e)});
+    case 'logout':return auth.signOut().then(function(){return{ok:1}});
+    case 'poll':return ref('tr').get().then(function(s){return{incoming:trFrom(s).filter(function(t){return t.to===me&&t.status==='pending'})}});
+    case 'w_get':return Promise.all([wGet(me),ref('tr').get()]).then(function(r){
+      var out=trFrom(r[1]).filter(function(t){return t.from===me}).reverse().slice(0,8);
+      return{w:r[0],other:other,outgoing:out}});
+    case 'w_entry':{var amt=num(p.amount);if(amt===0)return Promise.reject(new Error('Importo non valido'));
+      return wMod(me,function(w){w.entries.push(ent(amt,String(p.desc||'').trim().slice(0,200),false))})}
+    case 'w_op':{var c=num(p.caricato),t=num(p.tornato),s=String(p.sito||'').trim().slice(0,100);
+      if(s===''||c<0||t<0)return Promise.reject(new Error('Dati non validi'));
+      return wMod(me,function(w){w.ops.push({id:nid(),ts:NOW(),sito:s,caricato:c,tornato:t})})}
+    case 'w_note':{var x=String(p.text||'').trim().slice(0,2000);if(x==='')return Promise.reject(new Error('Nota vuota'));
+      return wMod(me,function(w){w.notes.push({id:nid(),ts:NOW(),text:x})})}
+    case 'w_edit':{var k=p.kind;if(['entries','ops','notes'].indexOf(k)<0)return Promise.reject(new Error('Errore'));
+      return wMod(me,function(w){
+        var e=w[k].filter(function(y){return y.id===p.id})[0];
+        if(!e)bad('Non trovato');if(e.auto)bad('Movimento automatico non modificabile');
+        if(k==='ops'){var c=num(p.caricato),t=num(p.tornato),s=String(p.sito||'').trim().slice(0,100);if(s===''||c<0||t<0)bad('Dati non validi');e.sito=s;e.caricato=c;e.tornato=t}
+        else if(k==='entries'){var am=num(p.amount);if(am===0)bad('Importo non valido');e.amount=Math.round(am*100)/100;e.desc=String(p.desc||'').trim().slice(0,200)}
+        else{var tx=String(p.text||'').trim().slice(0,2000);if(tx==='')bad('Nota vuota');e.text=tx}
+      })}
+    case 'w_del':{var kk=p.kind;if(['entries','ops','notes'].indexOf(kk)<0)return Promise.reject(new Error('Errore'));
+      return wMod(me,function(w){w[kk]=w[kk].filter(function(e){return e.id!==p.id||!!e.auto})})}
+    case 'tr_create':{var am2=Math.round(num(p.amount)*100)/100;if(am2<=0)return Promise.reject(new Error('Importo non valido'));
+      var rt=ref('tr');
+      return db.runTransaction(function(t){return t.get(rt).then(function(s){var l=trFrom(s);l.push({id:nid(),ts:NOW(),from:me,to:other,amount:am2,status:'pending'});t.set(rt,{list:l})})}).then(function(){return{ok:1}})}
+    case 'tr_answer':{
+      var rtr=ref('tr');
+      return db.runTransaction(function(t){return t.get(rtr).then(function(st){
+        var l=trFrom(st),x=l.filter(function(y){return y.id===p.id&&y.to===me&&y.status==='pending'})[0];
+        if(!x)bad('Richiesta non trovata');
+        if(!p.ok){x.status='no';t.set(rtr,{list:l});return}
+        var rm=ref('w_'+me),rf=ref('w_'+x.from);
+        return Promise.all([t.get(rm),t.get(rf)]).then(function(s){
+          var wm=wFrom(s[0]),wf=wFrom(s[1]);x.status='ok';
+          wm.entries.push(ent(x.amount,'Da '+NAMES[x.from],true));
+          wf.entries.push(ent(-x.amount,'Dato a '+NAMES[me],true));
+          t.set(rtr,{list:l});t.set(rm,wm);t.set(rf,wf);
+        });
+      })}).then(function(){return{ok:1}})}
+    case 'doc_get':{if(['calc','clients'].indexOf(p.name)<0)return Promise.reject(new Error('Errore'));
+      return ref(p.name).get().then(function(s){return s.exists?s.data():{rev:0,data:null,by:null}})}
+    case 'doc_save':{if(['calc','clients'].indexOf(p.name)<0)return Promise.reject(new Error('Errore'));
+      var r=ref(p.name);
+      return db.runTransaction(function(t){return t.get(r).then(function(s){
+        var cur=s.exists?s.data():{rev:0,data:null,by:null};
+        if(+p.rev!==+cur.rev)return Object.assign({conflict:true},cur);
+        var n={rev:cur.rev+1,data:clean(p.data),by:me,ts:NOW()};t.set(r,n);return{rev:n.rev};
+      })})}
+    case 'conclude':{
+      var rc=ref('calc'),r1=ref('w_biagio'),r2=ref('w_mario');
+      return db.runTransaction(function(t){return Promise.all([t.get(rc),t.get(r1),t.get(r2)]).then(function(s){
+        var c=s[0].exists?s[0].data():null;if(!c||!c.data)bad('Salva prima il calcolo');
+        var d=c.data,pgx=(d.pages||[]).filter(function(y){return y.id===p.pid})[0];
+        if(!pgx)bad('Calcolo non trovato (salva e riprova)');
+        if(pgx.concluded)bad('Già concluso');
+        var es=String(p.esito==null?'eurobet':p.esito);
+        var pers=Math.max(1,Math.round(num(pgx.persone))||1),qual=num(pgx.qualifica),vin=num(pgx.vincita);
+        var perse=0,cum=0,res=null;
+        pgx.steps.forEach(function(st,i){
+          var pp=st.nonCop?0:num(st.puntata),q=num(st.quota);cum+=pp;
+          if(es===String(i)&&!st.vinta&&!st.nonCop&&pp>0)res=pp*q-(perse+pp+qual);
+          perse+=pp;
+        });
+        if(es==='eurobet')res=vin-cum-qual;
+        if(res===null)bad('Esito non valido');
+        var per=Math.round(res/pers*100)/100,w1=wFrom(s[1]),w2=wFrom(s[2]);
+        w1.entries.push(ent(per,'vincita batchedbetting eurobet',true));
+        w2.entries.push(ent(per,'vincita batchedbetting eurobet',true));
+        pgx.concluded={ts:NOW(),by:me,per:per,esito:es};
+        t.set(rc,{rev:c.rev+1,data:clean(d),by:me,ts:NOW()});t.set(r1,w1);t.set(r2,w2);
+        return{per:per};
+      })})}
+  }
+  return Promise.reject(new Error('Azione sconosciuta'));
+}
+function fail(e){alert(e.message||e)}
+
+/* ---------- LOGIN ---------- */
+function login(){
+  var u='biagio';
+  $('#root').innerHTML='<div class="wrap"><h1>Accesso</h1><div class="card"><div class="actions" id="who"><button class="btn on" data-u="biagio">Biagio</button><button class="btn" data-u="mario">Mario</button></div><div class="cell" style="margin-top:10px"><label>Codice</label><input id="pin" type="password" inputmode="numeric" autocomplete="off"></div><div class="alert" id="lerr" hidden style="margin-top:10px"></div><button class="btn pri" id="go" style="width:100%;margin-top:10px">Entra</button></div></div>';
+  $('#who').onclick=function(e){var b=e.target.closest('[data-u]');if(!b)return;u=b.dataset.u;[].forEach.call($('#who').children,function(x){x.className='btn'+(x===b?' on':'')})};
+  function go(){api('login',{u:u,pin:$('#pin').value}).then(function(r){me=r.u;app()}).catch(function(e){var x=$('#lerr');x.hidden=false;x.textContent=e.message})}
+  $('#go').onclick=go;$('#pin').onkeydown=function(e){if(e.key==='Enter')go()};
+}
+
+/* ---------- APP ---------- */
+function app(){
+  $('#root').innerHTML='<div class="wrap"><div class="top"><strong>'+esc(NAMES[me])+'</strong><span><button class="btn" id="nt" style="min-height:36px">🔔</button> <button class="btn" data-act="logout" style="min-height:36px">Esci</button></span></div><div class="tabs"><button class="tab" data-t="wallet">Note &amp; Wallet</button><button class="tab" data-t="calc">Calcolatore</button><button class="tab" data-t="clients">Clienti</button></div><div id="view"></div></div><div class="sbar" id="sbar" hidden></div><div id="mod"></div>';
+  view=$('#view');
+  $('#nt').onclick=function(){if('Notification' in window)Notification.requestPermission().then(function(p){alert(p==='granted'?'Notifiche attivate (funzionano con la pagina aperta)':'Notifiche non consentite dal browser')});else alert('Notifiche non supportate')};
+  show(tab);poll();
+}
+function show(t){
+  tab=t;[].forEach.call(document.querySelectorAll('.tab'),function(b){b.classList.toggle('on',b.dataset.t===t)});
+  if(t==='wallet'){wallet();bar()}
+  else loadDoc(t).then(function(){render(t);bar()}).catch(fail);
+}
+
+/* ---------- POLL / NOTIFICA TRASFERIMENTI ---------- */
+function poll(){
+  api('poll').then(function(r){
+    var t=r.incoming[0];if(!t||$('#mod .modal'))return;
+    var txt=NAMES[t.from]+' ti deve mandare '+eur(t.amount)+', confermi?';
+    if(!notified[t.id]){notified[t.id]=1;try{if('Notification' in window&&Notification.permission==='granted')new Notification('Wallet',{body:txt})}catch(e){}}
+    $('#mod').innerHTML='<div class="modal"><div class="box"><h2>Richiesta di pagamento</h2><p>'+esc(txt)+'</p><div class="actions"><button class="btn pri" data-act="tr" data-id="'+t.id+'" data-ok="1">Sì</button><button class="btn del" data-act="tr" data-id="'+t.id+'" data-ok="0">No</button></div></div></div>';
+  }).catch(function(){});
+}
+setInterval(function(){if(!me||document.visibilityState!=='visible')return;poll();if(tab!=='wallet')docPoll(tab)},20000);
+
+/* ---------- WALLET ---------- */
+var lastR=null,ed=null;
+function isEd(k,id){return ed&&ed.k===k&&ed.id===id}
+function edBtns(){return'<div class="actions"><button class="btn" data-act="wcancel">Annulla</button><button class="btn pri" data-act="wsave">Salva modifica</button></div>'}
+function wallet(){api('w_get').then(function(r){lastR=r;wview(r)}).catch(fail)}
+function wview(r){
+    var w=r.w,o=r.other,guad=w.ops.reduce(function(s,x){return s+x.tornato-x.caricato},0),
+    saldo=w.entries.reduce(function(s,x){return s+x.amount},0)+guad;
+    var st={pending:'in attesa',ok:'confermato',no:'rifiutato'};
+    var h='<div class="card"><h2>Note</h2><textarea id="ntx" placeholder="Scrivi una nota (operazioni, conti, promemoria…)"></textarea><button class="btn pri" data-act="wnote" style="width:100%;margin-top:6px">Aggiungi nota</button>'+
+    w.notes.slice().reverse().map(function(n){if(isEd('notes',n.id))return'<div class="li" style="display:block"><textarea id="e1">'+esc(n.text)+'</textarea>'+edBtns()+'</div>';return'<div class="li"><div><div>'+esc(n.text).replace(/\n/g,'<br>')+'</div><div class="meta">'+new Date(n.ts*1000).toLocaleString('it-IT')+'</div></div><button class="x" data-act="wedit" data-k="notes" data-id="'+n.id+'">✎</button><button class="x" data-act="wdel" data-k="notes" data-id="'+n.id+'">✕</button></div>'}).join('')+'</div>'+
+    '<div class="card"><div class="two"><div><div class="meta">Saldo wallet</div><div class="big '+(saldo>=0?'pos':'neg')+'">'+sg(saldo)+'</div></div><div><div class="meta">Totale guadagnato (operazioni)</div><div class="big '+(guad>=0?'pos':'neg')+'">'+sg(guad)+'</div></div></div></div>'+
+    '<div class="card"><h2>Dai una parte a '+esc(NAMES[o])+'</h2><div class="actions"><input id="trv" inputmode="decimal" placeholder="Importo €"><button class="btn pri" data-act="trc" style="flex:0 0 auto">Invia richiesta</button></div><div class="meta">'+esc(NAMES[o])+' riceve la richiesta e deve confermare.</div>'+
+    r.outgoing.map(function(t){return'<div class="li"><span>'+eur(t.amount)+' a '+esc(NAMES[t.to])+'</span><span class="muted">'+st[t.status]+'</span></div>'}).join('')+'</div>'+
+    '<div class="card"><h2>Nuova operazione (carico → ritorno)</h2><div class="cell"><label>Conto / sito di gioco</label><input id="os"></div><div class="two" style="margin-top:6px"><div class="cell"><label>Caricato €</label><input id="oc" inputmode="decimal"></div><div class="cell"><label>Tornato €</label><input id="ot" inputmode="decimal"></div></div><button class="btn pri" data-act="wop" style="width:100%;margin-top:8px">Aggiungi operazione</button>'+
+    w.ops.slice().reverse().map(function(x){var g=x.tornato-x.caricato;if(isEd('ops',x.id))return'<div class="li" style="display:block"><input id="e1" value="'+esc(x.sito)+'" placeholder="Sito"><div class="two" style="margin:6px 0"><input id="e2" inputmode="decimal" value="'+x.caricato+'" placeholder="Caricato"><input id="e3" inputmode="decimal" value="'+x.tornato+'" placeholder="Tornato"></div>'+edBtns()+'</div>';return'<div class="li"><div><strong>'+esc(x.sito)+'</strong><div class="meta">carico '+eur(x.caricato)+' · tornato '+eur(x.tornato)+' · '+new Date(x.ts*1000).toLocaleDateString('it-IT')+'</div></div><span class="'+(g>=0?'pos':'neg')+'"><strong>'+sg(g)+'</strong></span><button class="x" data-act="wedit" data-k="ops" data-id="'+x.id+'">✎</button><button class="x" data-act="wdel" data-k="ops" data-id="'+x.id+'">✕</button></div>'}).join('')+'</div>'+
+    '<div class="card"><h2>Movimenti</h2><div class="three"><select id="et"><option value="1">Entrata</option><option value="-1">Uscita</option></select><input id="ev" inputmode="decimal" placeholder="€"><input id="ed" placeholder="Descrizione"></div><button class="btn pri" data-act="wen" style="width:100%;margin-top:8px">Aggiungi movimento</button>'+
+    w.entries.slice().reverse().map(function(x){if(isEd('entries',x.id))return'<div class="li" style="display:block"><div class="two"><input id="e2" inputmode="decimal" value="'+x.amount+'" placeholder="± €"><input id="e1" value="'+esc(x.desc)+'" placeholder="Descrizione"></div>'+edBtns()+'</div>';return'<div class="li"><div>'+esc(x.desc||'—')+'<div class="meta">'+new Date(x.ts*1000).toLocaleString('it-IT')+'</div></div><span class="'+(x.amount>=0?'pos':'neg')+'"><strong>'+sg(x.amount)+'</strong></span>'+(x.auto?'':'<button class="x" data-act="wedit" data-k="entries" data-id="'+x.id+'">✎</button><button class="x" data-act="wdel" data-k="entries" data-id="'+x.id+'">✕</button>')+'</div>'}).join('')+'</div>';
+    if(tab==='wallet')view.innerHTML='<h1>Note &amp; Wallet</h1>'+h;
+}
+
+/* ---------- DOCUMENTI CONDIVISI ---------- */
+function defData(n){
+  if(n==='clients')return{list:[]};
+  var p=newPage('Calcolo attuale');return{pages:[p]};
+}
+/* Compatibilita': vecchio formato (un solo calcolo + coda) -> schede */
+function normCalc(d){
+  if(d.pages&&d.pages.length)return d;
+  var first={id:nid(),name:'Calcolo attuale',budget:d.budget||'400',persone:d.persone||'2',vincita:d.vincita||'',qualifica:d.qualifica||'0',steps:d.steps||newPage('x').steps};
+  if(d.concluded)first.concluded=d.concluded;
+  var pages=[first];
+  (d.coda||[]).forEach(function(x){var s=x.snap||{};pages.push({id:x.id||nid(),name:x.titolo||'Calcolo prossimo',budget:s.budget,persone:s.persone,vincita:s.vincita,qualifica:s.qualifica,steps:s.steps||newPage('x').steps})});
+  return{pages:pages};
+}
+function setDoc(n,r){var d=r.data||defData(n);if(n==='calc')d=normCalc(d);docs[n]={rev:r.rev,data:d,saved:JSON.stringify(d),by:r.by,stale:false}}
+function loadDoc(n){return api('doc_get',{name:n}).then(function(r){setDoc(n,r)})}
+function dirty(n){var D=docs[n];return D&&JSON.stringify(D.data)!==D.saved}
+function docPoll(n){
+  if(n!=='calc'&&n!=='clients'||!docs[n])return;
+  api('doc_get',{name:n}).then(function(r){
+    var D=docs[n];if(!D||r.rev<=D.rev)return;
+    if(dirty(n)){D.stale=true;bar()}
+    else if(!(document.activeElement&&view.contains(document.activeElement)&&/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))){setDoc(n,r);if(tab===n){render(n);bar()}}
+  }).catch(function(){});
+}
+function bar(){
+  var s=$('#sbar');if(!s)return;
+  if(tab!=='calc'&&tab!=='clients'){s.hidden=true;return}
+  var D=docs[tab];if(!D){s.hidden=true;return}
+  var dr=dirty(tab);s.hidden=false;
+  s.innerHTML='<span class="msg">'+(D.stale?'⚠ '+esc(NAMES[D.by]||'')+' ha salvato modifiche: premi Annulla per aggiornare':dr?'<strong>Modifiche non salvate</strong>':'Salvato'+(D.by?' · ultima modifica '+esc(NAMES[D.by]):''))+'</span><button class="btn" data-act="cancel"'+(dr||D.stale?'':' disabled')+'>Annulla</button><button class="btn pri" data-act="save"'+(dr&&!D.stale?'':' disabled')+'>Salva</button>';
+}
+function save(){
+  var n=tab,D=docs[n];
+  api('doc_save',{name:n,rev:D.rev,data:D.data}).then(function(r){
+    if(r.conflict){D.stale=true;D.by=r.by;bar();alert(NAMES[r.by]+' ha salvato modifiche nel frattempo. Premi Annulla per caricare la sua versione.');return}
+    D.rev=r.rev;D.saved=JSON.stringify(D.data);D.by=me;D.stale=false;bar();if(n==='calc')render('calc');
+  }).catch(fail);
+}
+function cancel(){
+  var n=tab,D=docs[n];
+  if(!D.stale&&!confirm('Annullare le modifiche non salvate?'))return;
+  if(D.stale){loadDoc(n).then(function(){render(n);bar()}).catch(fail)}
+  else{D.data=JSON.parse(D.saved);render(n);bar()}
+}
+function render(n){if(n===tab){if(n==='calc')calcView();else cliView()}}
+
+/* ---------- CALCOLATORE (a schede) ---------- */
+function pg(){var d=docs.calc.data;if(cpage>=d.pages.length||cpage<0)cpage=0;return d.pages[cpage]}
+function calcAll(d){
+  var P=Math.max(1,Math.round(num(d.persone))||1),Q=num(d.qualifica),V=num(d.vincita),perse=0,cum=0;
+  var rows=d.steps.map(function(s){var p=s.nonCop?0:num(s.puntata),q=num(s.quota);cum+=p;var net=p*q-(perse+p+Q);perse+=p;return{p:p,net:net/P,cum:cum/P}});
+  return{P:P,Q:Q,V:V,rows:rows,cum:cum,fin:(V-cum-Q)/P};
+}
+function calcView(){
+  var D=docs.calc.data,d=pg(),c=d.concluded;
+  var tabs=D.pages.map(function(p,i){return'<button class="ptab'+(i===cpage?' on':'')+'" data-act="pgo" data-i="'+i+'">'+esc(p.name)+(p.concluded?' ✓':'')+'</button>'}).join('')+'<button class="ptab" data-act="padd" aria-label="Nuovo calcolo">+</button>';
+  view.innerHTML='<div class="ptabs">'+tabs+'</div>'+
+  '<div class="actions" style="margin-bottom:6px"><button class="btn" data-act="prn">✎ Rinomina calcolo</button><button class="btn del" data-act="pdel"'+(D.pages.length>1?'':' disabled')+'>Elimina calcolo</button></div>'+
+  '<h1>'+esc(d.name)+'</h1>'+(c?'<div class="ok">Concluso il '+new Date(c.ts*1000).toLocaleString('it-IT')+' da '+esc(NAMES[c.by])+': '+sg(c.per)+' a testa accreditati nei wallet.<br><button class="btn" data-act="newcalc" style="margin-top:8px">Nuovo calcolo</button></div>':'')+
+  '<fieldset '+(c?'disabled':'')+'><div class="params">'+[['budget','Budget max a testa (€)'],['persone','Persone'],['vincita','Vincita netta Eurobet (€)'],['qualifica','Perdita di qualifica (€)']].map(function(x){return'<div class="cell"><label>'+x[1]+'</label><input data-k="'+x[0]+'" inputmode="decimal" value="'+esc(d[x[0]])+'"></div>'}).join('')+'</div>'+
+  '<div class="alert" id="al" hidden></div><div id="steps"></div><div class="actions" style="margin-bottom:10px"><button class="btn" data-act="sadd">+ Aggiungi step</button><button class="btn del" data-act="srem">− Elimina ultimo</button></div>'+
+  '<div class="final"><div style="display:flex;justify-content:space-between;gap:8px"><div>Se vince Eurobet fino in fondo<div class="meta" id="fm"></div></div><div class="out" id="fo" style="min-height:0;white-space:nowrap"></div></div></div>'+
+  '<div class="card"><h2>Concludi</h2><div class="cell"><label>Esito</label><select id="es"></select></div><div class="meta" id="ev2" style="margin:6px 0"></div><button class="btn pri" data-act="concl" style="width:100%">Concludi e accredita nei wallet</button></div></fieldset>'+
+  '<button class="btn pri" data-act="padd" style="width:100%;margin-bottom:10px">Crea calcolo futuro</button>'+
+  '<div class="meta" style="margin-bottom:10px">I calcoli futuri restano in coda nelle schede in alto: quando concludi quello attuale, con «Nuovo calcolo» il successivo diventa quello attuale.</div>';
+  calcSteps();calcUpd();
+}
+function calcSteps(){
+  var d=pg();
+  $('#steps').innerHTML=d.steps.map(function(s,i){var k=i+1;
+    return'<div class="step" data-i="'+i+'"><div class="head"><span class="n">Step '+k+'</span><input data-f="partita" value="'+esc(s.partita)+'" placeholder="Partita"></div><div class="row"><div class="cell"><label>Quota</label><input data-f="quota" inputmode="decimal" value="'+esc(s.quota)+'"></div><div class="cell"><label>Puntata totale (€)</label><input data-f="puntata" inputmode="decimal" value="'+esc(s.puntata)+'"></div><div class="cell"><label>Netto a testa</label><div class="out"></div></div></div>'+
+    '<label class="chk"><input type="checkbox" data-c="nonCop"'+(s.nonCop?' checked':'')+'> Quota non coperta</label><label class="chk"><input type="checkbox" data-c="vinta"'+(s.vinta?' checked':'')+'> Partita vinta su Eurobet (copertura persa)</label><div class="meta"></div><div class="alert" hidden style="margin:8px 0 0"></div></div>'}).join('');
+}
+function calcUpd(){
+  var d=pg(),a=calcAll(d),b=num(d.budget),first=0,cards=document.querySelectorAll('#steps .step');
+  cards.forEach(function(card,i){
+    var s=d.steps[i],r=a.rows[i],out=card.querySelector('.out'),over=b>0&&r.cum>b+.005;if(over&&!first)first=i+1;
+    if(s.nonCop){out.textContent='non coperta';out.className='out muted'}
+    else if(s.vinta){out.textContent='persa';out.className='out muted'}
+    else if(r.p>0&&num(s.quota)>0){out.textContent=sg(r.net);out.className='out '+(r.net>=0?'pos':'neg')}
+    else{out.textContent='–';out.className='out'}
+    card.querySelector('.meta').textContent='A testa '+eur(r.p/a.P)+' · Cassa cumulata '+eur(r.cum)+' a testa'+(s.vinta&&!s.nonCop?' · costo non recuperato':'');
+    card.className='step'+(over?' over':'');
+    var er=card.querySelector('.alert');er.hidden=!over;er.textContent=over?'Errore: superi il budget di '+eur(r.cum-b)+' a testa.':'';
+  });
+  var al=$('#al');al.hidden=!first;al.textContent=first?'Errore: dallo step '+first+' la cassa supera il budget massimo di '+eur(b)+' a testa.':'';
+  $('#fo').textContent=sg(a.fin)+' a testa';$('#fo').className='out '+(a.fin>=0?'pos':'neg');
+  $('#fm').textContent='Vincita netta '+eur(a.V)+' − coperture '+eur(a.cum)+' − qualifica '+eur(a.Q);
+  var es=$('#es'),cur=es.value||'eurobet',o='<option value="eurobet">Eurobet vince tutto</option>';
+  d.steps.forEach(function(s,i){if(!s.vinta&&!s.nonCop&&a.rows[i].p>0&&num(s.quota)>0)o+='<option value="'+i+'">Vince copertura step '+(i+1)+(s.partita?' – '+esc(s.partita):'')+'</option>'});
+  if(es.innerHTML!==o)es.innerHTML=o;es.value=cur;if(es.value!==cur)es.value='eurobet';
+  $('#ev2').textContent='A testa a Biagio e Mario: '+sg(esitoVal(es.value));
+  bar();
+}
+function esitoVal(e){var a=calcAll(pg());return e==='eurobet'?a.fin:(a.rows[+e]?a.rows[+e].net:0)}
+function concl(){
+  if(dirty('calc')){alert('Prima salva le modifiche.');return}
+  var e=$('#es').value,v=esitoVal(e),id=pg().id;
+  if(!confirm('Accreditare '+sg(v)+' a testa a Biagio e Mario ("vincita batchedbetting eurobet")?'))return;
+  api('conclude',{esito:e,pid:id}).then(function(){return loadDoc('calc')}).then(function(){render('calc');bar()}).catch(fail);
+}
+
+/* ---------- CLIENTI ---------- */
+function cliView(){
+  var d=docs.clients.data;
+  view.innerHTML='<h1>Clienti</h1><div class="card"><div class="cell"><label>Nuovo cliente</label><div class="actions"><input id="ncn" placeholder="Nome"><button class="btn pri" data-act="cadd" style="flex:0 0 auto">Aggiungi</button></div></div></div>'+
+  d.list.map(function(c,i){return'<div class="step" data-i="'+i+'"><div class="head"><input data-f="nome" value="'+esc(c.nome)+'" placeholder="Nome" style="font-weight:700"><button class="x" data-act="cdel">✕</button></div>'+
+    c.siti.map(function(s,j){return'<div class="sb" data-j="'+j+'"><div class="head"><input data-f="sito" placeholder="Sito (es. Snai)" value="'+esc(s.sito)+'" style="font-weight:600"><button class="x" data-act="sdel2">✕</button></div><input data-f="account" placeholder="Username / mail" autocomplete="off" autocapitalize="off" value="'+esc(s.account)+'"><div class="pw"><input data-f="password" type="password" placeholder="Password" autocomplete="new-password" value="'+esc(s.password)+'"><button class="btn" data-act="pwtoggle" type="button">👁</button><button class="btn" data-act="pwcopy" type="button">Copia</button></div></div>'}).join('')+
+    '<button class="btn" data-act="sadd2" style="width:100%">+ Sito</button><div class="cell" style="margin-top:8px"><label>Note</label><input data-f="note" value="'+esc(c.note)+'"></div></div>'}).join('')||'<p class="muted">Nessun cliente.</p>';
+}
+
+/* ---------- EVENTI ---------- */
+document.addEventListener('input',function(e){
+  var el=e.target;if(!view||!view.contains(el))return;
+  if(tab==='calc'){var d=pg();
+    if(el.dataset.k)d[el.dataset.k]=el.value;
+    else if(el.dataset.f){d.steps[+el.closest('.step').dataset.i][el.dataset.f]=el.value}
+    calcUpd();
+  }else if(tab==='clients'&&el.dataset.f){
+    var c=docs.clients.data.list[+el.closest('.step').dataset.i],r=el.closest('.sb');
+    if(r)c.siti[+r.dataset.j][el.dataset.f]=el.value;else c[el.dataset.f]=el.value;
+    bar();
+  }
+});
+document.addEventListener('change',function(e){
+  var el=e.target;if(tab!=='calc'||!el.dataset.c)return;
+  var s=pg().steps[+el.closest('.step').dataset.i];
+  s[el.dataset.c]=el.checked;if(el.checked)s[el.dataset.c==='nonCop'?'vinta':'nonCop']=false;
+  calcSteps();calcUpd();
+});
+var A={
+  logout:function(){api('logout').then(function(){me=null;docs={};ed=null;cpage=0;login()})},
+  tr:function(b){api('tr_answer',{id:b.dataset.id,ok:b.dataset.ok==='1'}).then(function(){$('#mod').innerHTML='';if(tab==='wallet')wallet();poll()}).catch(fail)},
+  wnote:function(){api('w_note',{text:$('#ntx').value}).then(wallet).catch(fail)},
+  wdel:function(b){if(confirm('Eliminare?'))api('w_del',{kind:b.dataset.k,id:b.dataset.id}).then(wallet).catch(fail)},
+  trc:function(){api('tr_create',{amount:$('#trv').value}).then(wallet).catch(fail)},
+  wop:function(){api('w_op',{sito:$('#os').value,caricato:$('#oc').value,tornato:$('#ot').value}).then(wallet).catch(fail)},
+  wen:function(){var v=num($('#ev').value)*num($('#et').value);api('w_entry',{amount:v,desc:$('#ed').value}).then(wallet).catch(fail)},
+  wedit:function(b){ed={k:b.dataset.k,id:b.dataset.id};wview(lastR)},
+  wcancel:function(){ed=null;wview(lastR)},
+  wsave:function(){var v=function(i){var e=$('#'+i);return e?e.value:''};api('w_edit',{kind:ed.k,id:ed.id,sito:v('e1'),desc:v('e1'),text:v('e1'),caricato:v('e2'),amount:v('e2'),tornato:v('e3')}).then(function(){ed=null;wallet()}).catch(fail)},
+  pwtoggle:function(b){var i=b.closest('.pw').querySelector('input');i.type=i.type==='password'?'text':'password'},
+  pwcopy:function(b){var v=b.closest('.pw').querySelector('input').value;if(navigator.clipboard)navigator.clipboard.writeText(v).then(function(){b.textContent='Copiato';setTimeout(function(){b.textContent='Copia'},1500)})},
+  /* schede calcolo */
+  pgo:function(b){cpage=+b.dataset.i;render('calc')},
+  padd:function(){var D=docs.calc.data;D.pages.push(newPage('Calcolo prossimo '+D.pages.length,pg()));cpage=D.pages.length-1;render('calc');bar()},
+  prn:function(){var d=pg(),n=prompt('Nome del calcolo',d.name);if(n===null)return;n=n.trim();if(!n)return;d.name=n.slice(0,60);render('calc');bar()},
+  pdel:function(){var D=docs.calc.data;if(D.pages.length<2)return;if(!confirm('Eliminare il calcolo "'+pg().name+'" con tutti i suoi step?'))return;D.pages.splice(cpage,1);cpage=Math.min(cpage,D.pages.length-1);render('calc');bar()},
+  save:save,cancel:cancel,concl:concl,
+  sadd:function(){pg().steps.push({partita:'',quota:'',puntata:'',nonCop:false,vinta:false});calcSteps();calcUpd()},
+  srem:function(){var s=pg().steps;if(s.length>1){s.pop();calcSteps();calcUpd()}},
+  newcalc:function(){
+    var D=docs.calc.data;
+    if(D.pages.length>1){
+      if(!confirm('Il calcolo concluso viene tolto e il successivo diventa quello attuale. Continuare?'))return;
+      D.pages.splice(cpage,1);cpage=0;
+      if(/^Calcolo prossimo/i.test(D.pages[0].name))D.pages[0].name='Calcolo attuale';
+    }else{
+      if(!confirm('Iniziare un nuovo calcolo? Gli step attuali verranno svuotati.'))return;
+      var d=pg();delete d.concluded;d.steps=[{partita:'',quota:'',puntata:'',nonCop:false,vinta:false}];d.vincita='';
+    }
+    render('calc');bar();
+  },
+  cadd:function(){var n=$('#ncn').value.trim();if(!n)return;docs.clients.data.list.push({id:nid(),nome:n,siti:[],note:''});cliView();bar()},
+  cdel:function(b){var i=+b.closest('.step').dataset.i;if(confirm('Eliminare il cliente?')){docs.clients.data.list.splice(i,1);cliView();bar()}},
+  sadd2:function(b){docs.clients.data.list[+b.closest('.step').dataset.i].siti.push({sito:'',account:'',password:''});cliView();bar()},
+  sdel2:function(b){docs.clients.data.list[+b.closest('.step').dataset.i].siti.splice(+b.closest('.sb').dataset.j,1);cliView();bar()}
+};
+document.addEventListener('click',function(e){
+  var t=e.target.closest('[data-t]');if(t&&t.classList.contains('tab')){if(tab!==t.dataset.t&&dirty(tab)&&!confirm('Hai modifiche non salvate. Uscire comunque? (restano in bozza finché non ricarichi la pagina)'))return;show(t.dataset.t);return}
+  var b=e.target.closest('[data-act]');if(b&&A[b.dataset.act])A[b.dataset.act](b);
+});
+window.addEventListener('beforeunload',function(e){if(dirty('calc')||dirty('clients')){e.preventDefault();e.returnValue=''}});
+
+api('me').then(function(r){me=r.u;if(me)app();else login()}).catch(function(){login()});
+})();
+</script>
+</body>
+</html>
