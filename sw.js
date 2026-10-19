@@ -1,7 +1,7 @@
 /* Note & Wallet — service worker
    Cambia VERSION ogni volta che carichi una nuova index.html su GitHub:
    così telefoni e PC scaricano subito la versione nuova. */
-const VERSION = 'nw-v2';
+const VERSION = 'nw-v3';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 const CDN = ['www.gstatic.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 

@@ -252,6 +252,24 @@
 [data-dev=mobile] #pin{font-size:24px;letter-spacing:.45em;text-align:center;min-height:58px;border-radius:14px}
 [data-dev=mobile] #go{min-height:54px;font-size:16px;border-radius:14px}
 @media(prefers-reduced-motion:reduce){[data-dev=mobile] *,.toast,.dev-card{animation:none!important;transition:none!important}}
+
+/* aspetto: angoli e carattere */
+html[data-rad=s] .btn,html[data-rad=s] input,html[data-rad=s] select,html[data-rad=s] textarea,html[data-rad=s] .ptab,html[data-rad=s] .pill,html[data-rad=s] .alert,html[data-rad=s] .ok{border-radius:2px}
+html[data-rad=s] .card,html[data-rad=s] .step,html[data-rad=s] .final,html[data-rad=s] .params,html[data-rad=s] .panel,html[data-rad=s] .metric,html[data-rad=s] .box{border-radius:3px}
+html[data-rad=l] .btn,html[data-rad=l] input:not([type=checkbox]),html[data-rad=l] select,html[data-rad=l] textarea,html[data-rad=l] .ptab,html[data-rad=l] .alert,html[data-rad=l] .ok{border-radius:12px}
+html[data-rad=l] .pill{border-radius:20px}
+html[data-rad=l] .card,html[data-rad=l] .step,html[data-rad=l] .final,html[data-rad=l] .params,html[data-rad=l] .panel,html[data-rad=l] .metric,html[data-rad=l] .box{border-radius:20px}
+html[data-font=sys] body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+html[data-font=round] body{font-family:ui-rounded,'SF Pro Rounded','Nunito','Manrope',system-ui,sans-serif}
+html[data-font=mono] body{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
+.lk-sw{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px}
+.lk-sw button{border:2px solid var(--line);border-radius:10px;height:46px;padding:0;overflow:hidden;display:flex;background:none}
+.lk-sw button.on{border-color:var(--ink)}
+.lk-sw span{flex:1}
+.lk-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lk-row input[type=color]{padding:3px;height:46px;cursor:pointer}
+.lk-lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin:16px 0 8px}
+.ab-t{width:100%;font-size:12px;margin:10px 0}.ab-t td,.ab-t th{padding:7px 6px;white-space:nowrap}.ab-t td:last-child,.ab-t th:last-child{text-align:right}
 </style><script>/* Pure accounting helpers; all amounts are rounded to integer cents. */
 (function(root){
   function cents(v){var n=Number(String(v==null?'0':v).replace(',','.'));if(!Number.isFinite(n)||n<0)throw new Error('Inserisci un importo positivo valido');return Math.round(n*100)}
@@ -264,6 +282,21 @@
 <body>
 <div id="root"></div>
 <script>(function(){var h=document.documentElement,t="light",d=null;try{t=localStorage.getItem("nw_theme")==="dark"?"dark":"light";d=localStorage.getItem("nw_dev")}catch(e){}h.dataset.theme=t;if(d==="pc"||d==="mobile")h.dataset.dev=d;var m=document.querySelector("meta[name=theme-color]");if(m)m.setAttribute("content",t==="dark"?"#111b16":"#ffffff")})()</script>
+<script>/* Aspetto personalizzato (salvato su questo dispositivo) */
+window.NWLOOK=function(c){c=c||{};var h=document.documentElement,el=document.getElementById('nwlook');if(!el){el=document.createElement('style');el.id='nwlook';document.head.appendChild(el)}
+  h.dataset.rad=c.rad||'';h.dataset.font=c.font||'';
+  var P=c.p,S=c.s||c.p,css='';
+  function lum(x){x=String(x||'').replace('#','');if(x.length!==6)return 0;var r=parseInt(x.slice(0,2),16)/255,g=parseInt(x.slice(2,4),16)/255,b=parseInt(x.slice(4,6),16)/255;return .2126*r+.7152*g+.0722*b}
+  var L='html:root:not([data-theme=dark])',D='html:root[data-theme=dark]';
+  if(P){var ink=lum(P)>.62?'#111':'#fff';
+    css+=L+'{--accent:'+P+';--accent-ink:'+ink+';--ok-bg:color-mix(in oklch,'+P+' 12%,#fff);--dark:color-mix(in oklch,'+S+' 78%,#000);--dark-muted:color-mix(in oklch,'+S+' 25%,#fff);--warm:color-mix(in oklch,'+S+' 14%,#fff)}'+L+' .metric.dark{color:#fff}';
+    css+=D+'{--accent:color-mix(in oklch,'+P+' 72%,#fff);--accent-ink:#111;--ok-bg:color-mix(in oklch,'+P+' 24%,#1b1c20);--dark:color-mix(in oklch,'+S+' 45%,#16171a);--dark-muted:color-mix(in oklch,'+S+' 30%,#fff);--warm:color-mix(in oklch,'+S+' 26%,#1b1c20)}'}
+  if(c.bg==='neutral'){css+=L+'{--bg:#f6f6f7;--field:#f6f6f7;--line:#e6e6e9;--ink:#1d1f24;--muted:#6b6e76}'+D+'{--bg:#141518;--card:#1b1c20;--field:#17181b;--line:#2c2e33;--ink:#ececef;--muted:#9a9ca4}'}
+  else if(c.bg==='tint'&&P){css+=L+'{--bg:color-mix(in oklch,'+P+' 7%,#f7f7f8);--field:color-mix(in oklch,'+P+' 5%,#fafafa);--line:color-mix(in oklch,'+P+' 14%,#ececee)}'+D+'{--bg:color-mix(in oklch,'+P+' 9%,#121316);--card:color-mix(in oklch,'+P+' 7%,#1a1b1f);--field:color-mix(in oklch,'+P+' 6%,#16171a);--line:color-mix(in oklch,'+P+' 16%,#2a2c31)}'}
+  else if(c.bg==='grad'&&P){css+='html body{background:radial-gradient(1200px 600px at 0 0,color-mix(in oklch,'+P+' 16%,transparent),transparent 70%),radial-gradient(900px 500px at 100% 100%,color-mix(in oklch,'+S+' 14%,transparent),transparent 70%) fixed,var(--bg)}'}
+  el.textContent=css;
+};
+try{NWLOOK(JSON.parse(localStorage.getItem('nw_look')||'null'))}catch(e){}</script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -461,7 +494,7 @@ function api(a,p){
 function fail(e){toast(e&&e.message||e,'err')}
 
 /* ---------- LOGIN ---------- */
-function icon(name){var paths={star:'<path d="M12 3l2.8 5.8 6.2.9-4.5 4.4 1.1 6.2L12 17.4l-5.6 2.9 1.1-6.2L3 9.7l6.2-.9z"/>',term:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/>',wallet:'<rect x="3" y="5" width="18" height="15" rx="3"/><path d="M3 8h18M16 12h5v5h-5z"/>',calc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h1m3 0h1m3 0h1M8 15h1m3 0h1m3 0h1M8 18h1m3 0h1m3 0h1"/>',clients:'<circle cx="9" cy="7" r="3"/><path d="M3 20v-3a6 6 0 0 1 12 0v3m1-16a3 3 0 0 1 0 6m2 4a5 5 0 0 1 3 5"/>',plus:'<path d="M12 5v14M5 12h14"/>',arrow:'<path d="M5 12h14m-5-5 5 5-5 5"/>',up:'<path d="m4 16 6-6 4 4 6-9m-6 0h6v6"/>',bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',logout:'<path d="M9 4H4v16h5m5-13 5 5-5 5M8 12h11"/>',edit:'<path d="m15 4 5 5-11 11H4v-5zM13 6l5 5"/>',note:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',download:'<path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/>',check:'<path d="m5 12 4 4L19 6"/>',close:'<path d="m6 6 12 12M6 18 18 6"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/>',chat:'<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/>',flag:'<path d="M5 21V4h11l-2 4 2 4H5"/>',send:'<path d="m3 11 18-8-8 18-2-8z"/>',shield:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/>',alert:'<path d="M12 3 2 20h20zM12 10v4m0 3h.01"/>',monitor:'<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',phone:'<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>',more:'<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',refresh:'<path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/>',chev:'<path d="m9 6 6 6-6 6"/>',install:'<path d="M12 3v11m-4-4 4 4 4-4M5 17v3h14v-3"/>',share:'<path d="M12 3v12M8 7l4-4 4 4M6 11H5v9h14v-9h-1"/>'};return '<svg viewBox="0 0 24 24" aria-hidden="true">'+(paths[name]||paths.wallet)+'</svg>'}
+function icon(name){var paths={palette:'<path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.7-.9 1.4-1.8-.3-.9.3-1.9 1.3-1.9H17a4 4 0 0 0 4-4C21 7 17 3 12 3z"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="10" cy="7" r="1.2"/><circle cx="14.5" cy="7" r="1.2"/>',star:'<path d="M12 3l2.8 5.8 6.2.9-4.5 4.4 1.1 6.2L12 17.4l-5.6 2.9 1.1-6.2L3 9.7l6.2-.9z"/>',term:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/>',wallet:'<rect x="3" y="5" width="18" height="15" rx="3"/><path d="M3 8h18M16 12h5v5h-5z"/>',calc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h1m3 0h1m3 0h1M8 15h1m3 0h1m3 0h1M8 18h1m3 0h1m3 0h1"/>',clients:'<circle cx="9" cy="7" r="3"/><path d="M3 20v-3a6 6 0 0 1 12 0v3m1-16a3 3 0 0 1 0 6m2 4a5 5 0 0 1 3 5"/>',plus:'<path d="M12 5v14M5 12h14"/>',arrow:'<path d="M5 12h14m-5-5 5 5-5 5"/>',up:'<path d="m4 16 6-6 4 4 6-9m-6 0h6v6"/>',bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',logout:'<path d="M9 4H4v16h5m5-13 5 5-5 5M8 12h11"/>',edit:'<path d="m15 4 5 5-11 11H4v-5zM13 6l5 5"/>',note:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',download:'<path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/>',check:'<path d="m5 12 4 4L19 6"/>',close:'<path d="m6 6 12 12M6 18 18 6"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/>',chat:'<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/>',flag:'<path d="M5 21V4h11l-2 4 2 4H5"/>',send:'<path d="m3 11 18-8-8 18-2-8z"/>',shield:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/>',alert:'<path d="M12 3 2 20h20zM12 10v4m0 3h.01"/>',monitor:'<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',phone:'<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>',more:'<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',refresh:'<path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/>',chev:'<path d="m9 6 6 6-6 6"/>',install:'<path d="M12 3v11m-4-4 4 4 4-4M5 17v3h14v-3"/>',share:'<path d="M12 3v12M8 7l4-4 4 4M6 11H5v9h14v-9h-1"/>'};return '<svg viewBox="0 0 24 24" aria-hidden="true">'+(paths[name]||paths.wallet)+'</svg>'}
 function themeBtn(){var d=document.documentElement.dataset.theme==='dark';return '<button class="x" data-act="theme" title="'+(d?'Modalità chiara':'Modalità scura')+'" aria-label="Cambia tema">'+icon(d?'sun':'moon')+'</button>'}
 function brand(){return '<div class="brand"><span class="brand-icon">'+icon('wallet')+'</span><div>note<span class="muted"> & </span>wallet<small>Il tuo spazio, tutto in ordine.</small></div></div>'}
 function login(){
@@ -472,7 +505,7 @@ function login(){
  $('#go').onclick=go;$('#pin').onkeydown=function(e){if(e.key==='Enter')go()};$('#pin').oninput=function(){if(isMob()&&/^\d{6}$/.test(this.value))go()};if(!isMob())$('#pin').focus()
 }
 function app(){
- $('#root').innerHTML='<aside class="sidebar">'+brand()+'<div class="nav-label">Il tuo spazio</div><nav class="tabs"><button class="tab" data-t="wallet">'+icon('wallet')+'Note & Wallet</button><button class="tab" data-t="calc">'+icon('calc')+'Calcolatore</button><button class="tab" data-t="clients">'+icon('clients')+'Clienti</button><button class="tab" data-t="stats">'+icon('up')+'Analytics</button><button class="tab" data-t="support">'+icon('chat')+'Supporto e chat</button><button class="tab" data-t="reviews">'+icon('star')+'Recensioni</button>'+(ADMIN()?'<button class="tab" data-t="console">'+icon('term')+'Console e log</button>':'')+'</nav><div class="sidebar-bottom"><div class="user-row"><span class="avatar">'+(me==='biagio'?'BB':'MR')+'</span><div class="user-info"><strong>'+esc(NAMES[me])+(ADMIN()?'<span class="admin-tag">Admin</span>':'')+'</strong><small>'+(ADMIN()?'Amministratore':'Account personale')+'</small></div><button class="x" data-act="logout" title="Esci" aria-label="Esci">'+icon('logout')+'</button></div></div></aside><div class="layout"><header class="topbar"><div class="mbrand"><span class="brand-icon">'+icon('wallet')+'</span><div>note & wallet<small id="mcrumb">Note & Wallet</small></div></div><div class="breadcrumb">Il tuo spazio <span> / </span><strong id="crumb">Note & Wallet</strong></div><div class="top-tools">'+(demo?'<span class="preview-badge">Dati di esempio</span>':'<span class="connected"><span class="dot"></span>Firebase</span>')+'<button class="x pc-only" data-act="devswitch" title="Passa alla versione mobile" aria-label="Passa alla versione mobile">'+icon('phone')+'</button>'+themeBtn()+'<span class="bellw"><button class="x" id="nt" title="Notifiche e aggiornamenti" aria-label="Notifiche">'+icon('bell')+'</button><span class="nbadge" id="nb" hidden></span></span><span class="avatar">'+(me==='biagio'?'BB':'MR')+'</span></div></header><main class="wrap"><div id="view"></div><footer class="footer"><span>Note & Wallet · '+(demo?'Anteprima':'Spazio condiviso')+'</span><span>Un passo alla volta, tutto sotto controllo.</span></footer></main></div><div class="sbar" id="sbar" hidden></div><nav class="bnav" aria-label="Navigazione"><button class="tab" data-t="wallet"><span class="bi">'+icon('wallet')+'</span>Wallet</button><button class="tab" data-t="calc"><span class="bi">'+icon('calc')+'</span>Calcolo</button><button class="tab" data-t="clients"><span class="bi">'+icon('clients')+'</span>Clienti</button><button class="tab" data-t="support"><span class="bi">'+icon('chat')+'</span>Chat</button><button class="tab" id="bmore" data-act="more"><span class="bi">'+icon('more')+'</span>Altro</button></nav><div id="ptr" aria-hidden="true">'+icon('refresh')+'</div><div id="npw"></div><div id="mod"></div>';
+ $('#root').innerHTML='<aside class="sidebar">'+brand()+'<div class="nav-label">Il tuo spazio</div><nav class="tabs"><button class="tab" data-t="wallet">'+icon('wallet')+'Note & Wallet</button><button class="tab" data-t="calc">'+icon('calc')+'Calcolatore</button><button class="tab" data-t="clients">'+icon('clients')+'Clienti</button><button class="tab" data-t="stats">'+icon('up')+'Analytics</button><button class="tab" data-t="support">'+icon('chat')+'Supporto e chat</button><button class="tab" data-t="reviews">'+icon('star')+'Recensioni</button>'+(ADMIN()?'<button class="tab" data-t="console">'+icon('term')+'Console e log</button>':'')+'</nav><div class="sidebar-bottom"><div class="user-row"><span class="avatar">'+(me==='biagio'?'BB':'MR')+'</span><div class="user-info"><strong>'+esc(NAMES[me])+(ADMIN()?'<span class="admin-tag">Admin</span>':'')+'</strong><small>'+(ADMIN()?'Amministratore':'Account personale')+'</small></div><button class="x" data-act="logout" title="Esci" aria-label="Esci">'+icon('logout')+'</button></div></div></aside><div class="layout"><header class="topbar"><div class="mbrand"><span class="brand-icon">'+icon('wallet')+'</span><div>note & wallet<small id="mcrumb">Note & Wallet</small></div></div><div class="breadcrumb">Il tuo spazio <span> / </span><strong id="crumb">Note & Wallet</strong></div><div class="top-tools">'+(demo?'<span class="preview-badge">Dati di esempio</span>':'<span class="connected"><span class="dot"></span>Firebase</span>')+'<button class="x pc-only" data-act="devswitch" title="Passa alla versione mobile" aria-label="Passa alla versione mobile">'+icon('phone')+'</button><button class="x" data-act="look" title="Personalizza aspetto" aria-label="Personalizza aspetto">'+icon('palette')+'</button>'+themeBtn()+'<span class="bellw"><button class="x" id="nt" title="Notifiche e aggiornamenti" aria-label="Notifiche">'+icon('bell')+'</button><span class="nbadge" id="nb" hidden></span></span><span class="avatar">'+(me==='biagio'?'BB':'MR')+'</span></div></header><main class="wrap"><div id="view"></div><footer class="footer"><span>Note & Wallet · '+(demo?'Anteprima':'Spazio condiviso')+'</span><span>Un passo alla volta, tutto sotto controllo.</span></footer></main></div><div class="sbar" id="sbar" hidden></div><nav class="bnav" aria-label="Navigazione"><button class="tab" data-t="wallet"><span class="bi">'+icon('wallet')+'</span>Wallet</button><button class="tab" data-t="calc"><span class="bi">'+icon('calc')+'</span>Calcolo</button><button class="tab" data-t="clients"><span class="bi">'+icon('clients')+'</span>Clienti</button><button class="tab" data-t="support"><span class="bi">'+icon('chat')+'</span>Chat</button><button class="tab" id="bmore" data-act="more"><span class="bi">'+icon('more')+'</span>Altro</button></nav><div id="ptr" aria-hidden="true">'+icon('refresh')+'</div><div id="npw"></div><div id="mod"></div>';
  view=$('#view');try{if(isMob())history.replaceState({t:tab},'')}catch(e){}$('#nt').onclick=function(e){e.stopPropagation();if($('#np'))npClose();else npOpen()};show(tab);poll();feed();
 }
 function show(t){var chg=tab!==t;tab=t;$('#crumb').textContent={wallet:'Note & Wallet',calc:'Calcolatore',clients:'Clienti',stats:'Analytics',support:'Supporto e chat',reviews:'Recensioni',console:'Console e log'}[t];var mc=$('#mcrumb');if(mc)mc.textContent=$('#crumb').textContent;[].forEach.call(document.querySelectorAll('.tab'),function(b){b.classList.toggle('on',b.dataset.t===t)});var bm=$('#bmore');if(bm)bm.classList.toggle('on',['stats','reviews','console'].indexOf(t)>=0);if(isMob()){hist(t);if(chg)window.scrollTo(0,0)}if(t==='wallet'){wallet();bar()}else if(t==='stats'){statsView();bar()}else if(t==='support'){support();bar()}else if(t==='reviews'){revView();bar()}else if(t==='console'){if(ADMIN())conView();bar()}else (docs[t]?Promise.resolve():loadDoc(t)).then(function(){render(t);bar()}).catch(fail)}
@@ -562,7 +595,7 @@ function calcView(){
   '<div class="actions" style="margin-bottom:6px"><button class="btn" data-act="prn">✎ Rinomina calcolo</button><button class="btn" data-act="share">⇪ Condividi</button><button class="btn del" data-act="pdel"'+(D.pages.length>1?'':' disabled')+'>Elimina calcolo</button></div>'+
   '<h1>'+esc(d.name)+'</h1>'+(c?'<div class="ok">Concluso il '+new Date(c.ts*1000).toLocaleString('it-IT')+' da '+esc(NAMES[c.by])+': '+sg(c.per)+' a testa accreditati nei wallet.<br><button class="btn" data-act="newcalc" style="margin-top:8px">Nuovo calcolo</button></div>':'')+
   '<fieldset '+(c?'disabled':'')+'><div class="params">'+[['budget','Budget max a testa (€)'],['persone','Persone'],['vincita','Vincita netta Eurobet (€)'],['qualifica','Perdita di qualifica (€)']].map(function(x){return'<div class="cell"><label>'+x[1]+'</label><input data-k="'+x[0]+'" inputmode="decimal" value="'+esc(d[x[0]])+'"></div>'}).join('')+'</div>'+
-  '<div class="alert" id="al" hidden></div><div id="steps"></div><div class="actions" style="margin-bottom:10px"><button class="btn" data-act="sadd">+ Aggiungi step</button><button class="btn del" data-act="srem">− Elimina ultimo</button></div>'+
+  '<div class="alert" id="al" hidden></div><div id="steps"></div><div class="actions" style="margin-bottom:10px"><button class="btn" data-act="sadd">+ Aggiungi step</button><button class="btn del" data-act="srem">− Elimina ultimo</button></div><button class="btn pri" data-act="autobal" style="width:100%;margin-bottom:17px">⚖ Bilancio automatico</button>'+
   '<div class="final"><div style="display:flex;justify-content:space-between;gap:8px"><div>Se vince Eurobet fino in fondo<div class="meta" id="fm"></div></div><div class="out" id="fo" style="min-height:0;white-space:nowrap"></div></div></div>'+
   '<div class="card"><h2>Concludi</h2><div class="cell"><label>Esito</label><select id="es"></select></div><div class="meta" id="ev2" style="margin:6px 0"></div><button class="btn pri" data-act="concl" style="width:100%">Concludi e accredita nei wallet</button></div></fieldset>'+
   '<div class="card" id="debt"></div>'+
@@ -644,6 +677,58 @@ function shareMake(){
 }
 function shareName(){return String(pg().name||'calcolo').replace(/[^\w\-]+/g,'_').slice(0,40)+'.png'}
 function shareDl(){if(!shareBlob)return;var u=URL.createObjectURL(shareBlob),l=document.createElement('a');l.href=u;l.download=shareName();document.body.appendChild(l);l.click();l.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000)}
+/* ---------- BILANCIO AUTOMATICO ----------
+   Trova le puntate che danno lo STESSO guadagno a testa in ogni esito
+   (qualunque copertura vinca oppure Eurobet fino in fondo).
+   Gli step "vinta su Eurobet" e "non coperta" restano come sono. */
+function abOpts(){var g=function(id,d){var e=$('#'+id);return e?e.value:d};return{scope:g('abs','all'),round:num(g('abr','0.01'))||.01,cov:g('abc','h')}}
+function abSolve(o){
+  var d=pg(),V=num(d.vincita),Q=num(d.qualifica),P=Math.max(1,Math.round(num(d.persone))||1),last=-1;
+  if(!(V>0))return{err:'Inserisci prima la vincita netta Eurobet.'};
+  d.steps.forEach(function(s,i){if(s.vinta)last=i});
+  var info=d.steps.map(function(s,i){var fixed=s.nonCop||s.vinta||(o.scope==='rest'&&i<=last);return{s:s,i:i,fixed:fixed,q:num(s.quota),p:s.nonCop?0:num(s.puntata)}});
+  var free=info.filter(function(x){return!x.fixed});
+  if(!free.length)return{err:'Non ci sono step da bilanciare (sono tutti vinti, non coperti o già giocati).'};
+  var bad=free.filter(function(x){return!(x.q>1)});
+  if(bad.length)return{err:'Metti prima le quote (maggiori di 1) negli step: '+bad.map(function(x){return x.i+1}).join(', ')+'.'};
+  /* cassa prima di ogni step = a + b*X ; risolvo X con la condizione finale V - cassa - Q = X */
+  var a=0,b=0;info.forEach(function(x){if(x.fixed){a+=x.p}else{var k=1/(x.q-1),pa=(Q+a)*k,pb=(1+b)*k;a+=pa;b+=pb}});
+  var X=(V-a-Q)/(1+b),R=o.round,S=0;
+  info.forEach(function(x){if(!x.fixed){var p=(X+Q+S)/(x.q-1);x.np=Math.max(0,Math.round(p/R)*R);x.np=Math.round(x.np*100)/100}else x.np=x.p;S+=x.np});
+  return{info:info,X:X,P:P,per:X/P,tot:S,b:num(d.budget)};
+}
+function abFmt(n){return String(Math.round(n*100)/100).replace('.',',')}
+function abRender(){
+  var box=$('#abbox');if(!box)return;var r=abSolve(abOpts()),go=$('#abgo');
+  if(r.err){box.innerHTML='<div class="alert" style="margin:0">'+esc(r.err)+'</div>';go.disabled=true;return}
+  go.disabled=false;var ph=r.tot/r.P,over=r.b>0&&ph>r.b+.005;
+  box.innerHTML='<table class="ab-t"><thead><tr><th>Step</th><th>Quota</th><th>Puntata</th></tr></thead><tbody>'+r.info.map(function(x){return'<tr><td>'+(x.i+1)+(x.s.partita?' · '+esc(String(x.s.partita).slice(0,22)):'')+'</td><td>'+(x.q>0?abFmt(x.q):'–')+'</td><td>'+(x.fixed?'<span class="muted">'+(x.s.nonCop?'non coperta':x.s.vinta?'vinta · ':'giocata · ')+(x.s.nonCop?'':eur(x.np))+'</span>':'<strong>'+eur(x.np)+'</strong>')+'</td></tr>'}).join('')+'</tbody></table>'+
+    '<div class="'+(r.per>=0?'ok':'alert')+'" style="margin:0 0 8px">Guadagno uguale in ogni esito: <strong>'+sg(r.per)+'</strong> a testa'+(r.per<0?' (con queste quote si perde)':'')+'</div>'+
+    '<div class="meta" style="margin:0'+(over?';color:var(--neg)':'')+'">Cassa totale '+eur(ph)+' a testa'+(r.b>0?(over?' · supera il budget di '+eur(ph-r.b):' · dentro il budget di '+eur(r.b)):'')+'</div>';
+}
+function abApply(){
+  var o=abOpts(),r=abSolve(o);if(r.err){alert(r.err);return}
+  r.info.forEach(function(x){if(x.fixed)return;var s=x.s,p=x.np;s.puntata=abFmt(p);
+    if(o.cov!=='keep'){var cb=o.cov==='b'?p:o.cov==='h'?Math.round(p*50)/100:0;s.cb=abFmt(cb);s.cm=abFmt(o.cov==='m'?p:o.cov==='h'?Math.round((p-cb)*100)/100:0)}});
+  $('#mod').innerHTML='';calcSteps();calcUpd();toast('Puntate bilanciate: ricordati di salvare');
+}
+/* ---------- ASPETTO ---------- */
+var LOOK_PRE=[['Verde (originale)','',''],['Oceano','#2563eb','#0ea5e9'],['Viola','#7c3aed','#db2777'],['Tramonto','#ea580c','#e11d48'],['Rubino','#be123c','#7c2d12'],['Menta','#0d9488','#65a30d'],['Oro','#b45309','#78350f'],['Notte','#4f46e5','#0f172a'],['Grafite','#374151','#0f766e'],['Rosa','#db2777','#9333ea'],['Cielo','#0284c7','#14b8a6'],['Lime','#4d7c0f','#a16207']];
+function lookGet(){try{return JSON.parse(localStorage.getItem('nw_look')||'null')||{}}catch(e){return{}}}
+function lookSet(c){try{localStorage.setItem('nw_look',JSON.stringify(c))}catch(e){}window.NWLOOK(c)}
+function lookView(){
+  var c=lookGet(),dk=document.documentElement.dataset.theme==='dark';
+  var sel=function(id,cur,opts){return'<select data-lk="1" id="'+id+'">'+opts.map(function(o){return'<option value="'+o[0]+'"'+((cur||'')===o[0]?' selected':'')+'>'+o[1]+'</option>'}).join('')+'</select>'};
+  modal('Personalizza aspetto',
+    '<div class="lk-lbl" style="margin-top:0">Modalità</div><div class="actions" style="margin:0"><button class="btn'+(dk?'':' on')+'" data-act="lookmode" data-v="light">'+icon('sun')+'Chiaro</button><button class="btn'+(dk?' on':'')+'" data-act="lookmode" data-v="dark">'+icon('moon')+'Scuro</button></div>'+
+    '<div class="lk-lbl">Palette pronte</div><div class="lk-sw">'+LOOK_PRE.map(function(x,i){var on=(c.p||'')===x[1]&&(c.s||'')===x[2];return'<button data-act="lookpre" data-i="'+i+'" class="'+(on?'on':'')+'" title="'+x[0]+'" aria-label="'+x[0]+'"><span style="background:'+(x[1]||'#1f6b55')+'"></span><span style="background:'+(x[2]||'#2a4a3f')+'"></span></button>'}).join('')+'</div>'+
+    '<div class="lk-lbl">Colori personalizzati</div><div class="lk-row"><div class="cell"><label for="lkp">Primario (tasti, evidenze)</label><input type="color" data-lk="1" id="lkp" value="'+(c.p||'#1f6b55')+'"></div><div class="cell"><label for="lks">Secondario (riquadri, dettagli)</label><input type="color" data-lk="1" id="lks" value="'+(c.s||c.p||'#2a4a3f')+'"></div></div>'+
+    '<div class="lk-lbl">Altre opzioni</div><div class="lk-row"><div class="cell"><label for="lkb">Sfondo</label>'+sel('lkb',c.bg,[['','Originale'],['neutral','Grigio neutro'],['tint','Tinta del primario'],['grad','Sfumato colorato']])+'</div><div class="cell"><label for="lkr">Angoli</label>'+sel('lkr',c.rad,[['s','Squadrati'],['','Normali'],['l','Arrotondati']])+'</div><div class="cell"><label for="lkf">Carattere</label>'+sel('lkf',c.font,[['','Manrope (originale)'],['sys','Di sistema'],['round','Arrotondato'],['mono','Monospazio']])+'</div><div class="cell"><label>Anteprima</label><div style="display:flex;gap:6px;align-items:center;min-height:42px"><span class="btn pri" style="min-height:32px;padding:0 10px">Tasto</span><span class="pill">+12,00 €</span><span class="ptab on" style="padding:6px 10px">Scheda</span></div></div></div>'+
+    '<p class="meta">Le scelte valgono solo su questo dispositivo.</p><div class="actions"><button class="btn" data-act="lookreset">Ripristina originale</button><button class="btn pri" data-act="closemod">Fatto</button></div>');
+}
+function lookFromForm(src){var c=lookGet(),g=function(id){var e=$('#'+id);return e?e.value:''};
+  if(src==='lkp'||src==='lks'){c.p=g('lkp');c.s=g('lks')}
+  c.bg=g('lkb');c.rad=g('lkr');c.font=g('lkf');lookSet(c);[].forEach.call(document.querySelectorAll('.lk-sw button'),function(b){b.classList.remove('on')})}
 /* ---------- CONTI TRA BIAGIO E MARIO ---------- */
 var trAll=[],SALDO='Saldo debiti calcoli';
 function covSum(p){var b=0,m=0;(p.steps||[]).forEach(function(s){if(s.nonCop)return;b+=num(s.cb);m+=num(s.cm)});return{b:Math.round(b*100)/100,m:Math.round(m*100)/100}}
@@ -800,7 +885,7 @@ function chatView(){
 function refreshTab(){if(tab==='wallet')wallet();else if(tab==='support')support()}
 /* ---------- EVENTI ---------- */
 document.addEventListener('input',function(e){
-  var el=e.target;
+  var el=e.target;if(el.dataset&&el.dataset.lk){lookFromForm(el.id);return}if(el.dataset&&el.dataset.ab){abRender();return}
   if(el.id==='ctx'&&isMob()){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,140)+'px'}
   if(el.matches&&el.matches('[data-site],[data-site-other]')){var w=el.closest('.sitef');w.querySelector('[data-site-other]').hidden=w.querySelector('[data-site]').value!=='Altro';
     if(tab==='clients'&&view.contains(el)){var sb=el.closest('.sb'),st=el.closest('.step'),fu=el.closest('[data-fi]');if(sb&&st){docs.clients.data.list[+st.dataset.i].siti[+sb.dataset.j].sito=siteVal(w);bar()}else if(fu){docs.clients.data.future[+fu.dataset.fi].sito=siteVal(w);bar()}}
@@ -817,7 +902,7 @@ document.addEventListener('input',function(e){
   }
 });
 document.addEventListener('change',function(e){
-  var el=e.target;if(el.id==='shimp'){shareMake();return}if(tab==='calc'&&el.id==='es'){calcUpd();return}if(tab!=='calc'||!el.dataset.c)return;
+  var el=e.target;if(el.dataset&&el.dataset.lk){lookFromForm(el.id);return}if(el.dataset&&el.dataset.ab){abRender();return}if(el.id==='shimp'){shareMake();return}if(tab==='calc'&&el.id==='es'){calcUpd();return}if(tab!=='calc'||!el.dataset.c)return;
   var s=pg().steps[+el.closest('.step').dataset.i];
   s[el.dataset.c]=el.checked;if(el.checked)s[el.dataset.c==='nonCop'?'vinta':'nonCop']=false;
   calcSteps();calcUpd();
@@ -829,6 +914,12 @@ var A={
   futdel:function(b){if(!confirm('Eliminare questo cliente futuro?'))return;docs.clients.data.future.splice(+b.closest('[data-fi]').dataset.fi,1);cliView();bar()},
   futmake:function(b){var i=+b.closest('[data-fi]').dataset.fi,f=docs.clients.data.future[i];if(!String(f.nome||'').trim()){alert('Scrivi prima il nome');return}docs.clients.data.list.push({id:nid(),nome:f.nome,siti:[{sito:f.sito||'',account:'',password:''}],note:f.note||'',owner:'',generated:'0',clientShare:'0',clientPaid:'0',credited:0});docs.clients.data.future.splice(i,1);cliView();bar()},
   closemod:function(){$('#mod').innerHTML='';ed=null},
+  autobal:function(){var d=pg(),P=Math.max(1,Math.round(num(d.persone))||1);modal('Bilancio automatico','<p class="meta" style="margin:0 0 12px">Calcola le puntate per avere lo stesso guadagno a testa in qualunque esito, usando persone, vincita netta Eurobet, qualifica e le quote già inserite. Gli step vinti su Eurobet o non coperti restano come sono.</p><div class="two"><div class="cell"><label for="abs">Quali step</label><select id="abs" data-ab="1"><option value="all">Tutti gli step</option><option value="rest">Solo quelli che mancano (dopo l’ultimo vinto)</option></select></div><div class="cell"><label for="abr">Arrotonda puntate</label><select id="abr" data-ab="1"><option value="0.01">al centesimo</option><option value="0.5">a 0,50 €</option><option value="1">all’euro</option></select></div></div><div class="cell"><label for="abc">Coperture</label><select id="abc" data-ab="1"><option value="h"'+(P===2?' selected':'')+'>Metà Biagio, metà Mario</option><option value="b">Tutto Biagio</option><option value="m">Tutto Mario</option><option value="keep"'+(P===2?'':' selected')+'>Non toccarle</option></select></div><div id="abbox"></div><div class="actions"><button class="btn" data-act="closemod">Annulla</button><button class="btn pri" id="abgo" data-act="abgo">Applica puntate</button></div>');abRender()},
+  abgo:abApply,
+  look:function(){lookView()},
+  lookmode:function(b){var want=b.dataset.v;if((document.documentElement.dataset.theme==='dark')!==(want==='dark'))A.theme();lookView()},
+  lookpre:function(b){var x=LOOK_PRE[+b.dataset.i],c=lookGet();c.p=x[1];c.s=x[2];if(!x[1]&&c.bg!=='neutral')c.bg='';lookSet(c);lookView()},
+  lookreset:function(){lookSet({});lookView();toast('Aspetto originale ripristinato')},
   share:function(){modal('Condividi calcolo','<label class="chk" style="margin:0 0 12px"><input type="checkbox" id="shimp" checked> Mostra importi (puntate e netto a testa)</label><img id="shimg" alt="Anteprima immagine" style="width:100%;border:1px solid var(--line);border-radius:8px;display:block;background:var(--field);min-height:120px"><p class="meta">Nell\'immagine non compaiono nomi né chi copre cosa.</p><div class="actions"><button class="btn" data-act="sharedl">Scarica PNG</button><button class="btn pri" id="shgo" data-act="sharego" disabled>Condividi</button></div>');shareMake()},
   sharedl:shareDl,
   sharego:function(){if(!shareBlob)return;var f;try{f=new File([shareBlob],shareName(),{type:'image/png'})}catch(e){shareDl();return}
@@ -1052,7 +1143,7 @@ Object.assign(A,{
     var row=function(act,ic,txt,extra,cls){return '<button'+(cls?' class="'+cls+'"':'')+' data-act="'+act+'"'+(extra||'')+'>'+icon(ic)+txt+(act==='mgo'?'<span class="chev">'+icon('chev')+'</span>':'')+'</button>'};
     modal('Altro','<div class="muser"><span class="avatar">'+(me==='biagio'?'BB':'MR')+'</span><div><strong>'+esc(NAMES[me])+(ADMIN()?'<span class="admin-tag">Admin</span>':'')+'</strong><div class="tiny">'+(ADMIN()?'Amministratore':'Account personale')+(demo?' · dati di esempio':'')+'</div></div></div>'+
       '<div class="mlist">'+items.map(function(i){return row('mgo',i[1],i[2],' data-v="'+i[0]+'"')}).join('')+'</div>'+
-      '<div class="mlist">'+(canInst?row('install','install','Installa l’app sul telefono'):'')+(canPush?row('mpush','bell','Attiva le notifiche'):'')+row('mtheme',dk?'sun':'moon',dk?'Tema chiaro':'Tema scuro')+row('devswitch','monitor','Passa alla versione PC')+'</div>'+
+      '<div class="mlist">'+(canInst?row('install','install','Installa l’app sul telefono'):'')+(canPush?row('mpush','bell','Attiva le notifiche'):'')+row('look','palette','Personalizza aspetto e colori')+row('mtheme',dk?'sun':'moon',dk?'Tema chiaro':'Tema scuro')+row('devswitch','monitor','Passa alla versione PC')+'</div>'+
       '<div class="mlist">'+row('mlogout','logout','Esci','','del')+'</div><div class="tiny" style="text-align:center">Note & Wallet · '+(isStandalone()?'app installata':'web app')+'</div>');
   },
   mgo:function(b){var t=b.dataset.v;$('#mod').innerHTML='';if(tab!==t&&dirty(tab)&&!confirm('Hai modifiche non salvate. Uscire comunque?'))return;show(t)},
