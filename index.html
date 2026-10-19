@@ -559,7 +559,7 @@ function calcView(){
   var D=docs.calc.data,d=pg(),c=d.concluded;
   var tabs=D.pages.map(function(p,i){return'<button class="ptab'+(i===cpage?' on':'')+'" data-act="pgo" data-i="'+i+'">'+esc(p.name)+(p.concluded?' ✓':'')+'</button>'}).join('')+'<button class="ptab" data-act="padd" aria-label="Nuovo calcolo">+</button>';
   view.innerHTML='<div class="ptabs">'+tabs+'</div>'+
-  '<div class="actions" style="margin-bottom:6px"><button class="btn" data-act="prn">✎ Rinomina calcolo</button><button class="btn del" data-act="pdel"'+(D.pages.length>1?'':' disabled')+'>Elimina calcolo</button></div>'+
+  '<div class="actions" style="margin-bottom:6px"><button class="btn" data-act="prn">✎ Rinomina calcolo</button><button class="btn" data-act="share">⇪ Condividi</button><button class="btn del" data-act="pdel"'+(D.pages.length>1?'':' disabled')+'>Elimina calcolo</button></div>'+
   '<h1>'+esc(d.name)+'</h1>'+(c?'<div class="ok">Concluso il '+new Date(c.ts*1000).toLocaleString('it-IT')+' da '+esc(NAMES[c.by])+': '+sg(c.per)+' a testa accreditati nei wallet.<br><button class="btn" data-act="newcalc" style="margin-top:8px">Nuovo calcolo</button></div>':'')+
   '<fieldset '+(c?'disabled':'')+'><div class="params">'+[['budget','Budget max a testa (€)'],['persone','Persone'],['vincita','Vincita netta Eurobet (€)'],['qualifica','Perdita di qualifica (€)']].map(function(x){return'<div class="cell"><label>'+x[1]+'</label><input data-k="'+x[0]+'" inputmode="decimal" value="'+esc(d[x[0]])+'"></div>'}).join('')+'</div>'+
   '<div class="alert" id="al" hidden></div><div id="steps"></div><div class="actions" style="margin-bottom:10px"><button class="btn" data-act="sadd">+ Aggiungi step</button><button class="btn del" data-act="srem">− Elimina ultimo</button></div>'+
@@ -600,6 +600,50 @@ function calcUpd(){
   cards.forEach(function(card,i){var s=d.steps[i],pp=s.nonCop?0:num(s.puntata),cv=num(s.cb)+num(s.cm);if(pp>0&&Math.abs(cv-pp)>.005){var m=card.querySelector('.meta');m.textContent+=' · Coperture inserite '+eur(cv)+' su '+eur(pp)}});
   debtUpd();bar();
 }
+/* ---------- CONDIVIDI CALCOLO (immagine PNG minimal) ---------- */
+var shareBlob=null;
+function shareRR(x,c,y,w,h,r){x.beginPath();x.moveTo(c+r,y);x.arcTo(c+w,y,c+w,y+h,r);x.arcTo(c+w,y+h,c,y+h,r);x.arcTo(c,y+h,c,y,r);x.arcTo(c,y,c+w,y,r);x.closePath()}
+function shareFit(x,t,w){t=String(t||'');if(x.measureText(t).width<=w)return t;while(t.length&&x.measureText(t+'…').width>w)t=t.slice(0,-1);return t+'…'}
+function shareCanvas(imp){
+  var d=pg(),a=calcAll(d),F="'Manrope',system-ui,sans-serif",W=1080,P=64,C={bg:'#f4f7f5',card:'#ffffff',ink:'#16302a',mu:'#6b7d76',line:'#e3e9e6',ac:'#1f6b55',pos:'#1d7a4f',neg:'#c23b2b'};
+  var st=d.steps.map(function(s,i){return{s:s,r:a.rows[i],n:i+1}}).filter(function(o){return String(o.s.partita||'').trim()||num(o.s.quota)>0});
+  var RH=imp?150:120,H=P+150+st.length*(RH+18)+(imp?190:40)+90;
+  var cv=document.createElement('canvas');cv.width=W;cv.height=H;var x=cv.getContext('2d');
+  x.fillStyle=C.bg;x.fillRect(0,0,W,H);
+  var y=P;x.textBaseline='alphabetic';
+  x.fillStyle=C.ac;x.font='800 26px '+F;x.fillText('LA GIOCATA',P,y+26);
+  x.fillStyle=C.mu;x.font='600 24px '+F;x.textAlign='right';x.fillText(new Date().toLocaleDateString('it-IT'),W-P,y+26);x.textAlign='left';
+  x.fillStyle=C.ink;x.font='800 54px '+F;x.fillText(shareFit(x,d.name,W-2*P),P,y+96);
+  y+=150;
+  if(!st.length){x.fillStyle=C.mu;x.font='600 30px '+F;x.fillText('Nessuna partita inserita',P,y+40);y+=60}
+  st.forEach(function(o){var s=o.s,r=o.r;
+    x.fillStyle=C.card;shareRR(x,P,y,W-2*P,RH,22);x.fill();x.strokeStyle=C.line;x.lineWidth=2;x.stroke();
+    var cx=P+32;
+    x.fillStyle=C.ac;shareRR(x,cx,y+32,58,58,14);x.fill();x.fillStyle='#fff';x.font='800 28px '+F;x.textAlign='center';x.fillText(String(o.n),cx+29,y+71);x.textAlign='left';
+    var tx=cx+84,qw=230;
+    x.fillStyle=C.ink;x.font='700 34px '+F;x.fillText(shareFit(x,s.partita||'Step '+o.n,W-2*P-84-32-qw-40),tx,y+60);
+    var tag=s.nonCop?'non coperta':s.vinta?'vinta su Eurobet':'';
+    x.fillStyle=C.mu;x.font='600 24px '+F;
+    if(imp)x.fillText('Puntata '+eur(num(s.puntata))+(tag?'  ·  '+tag:''),tx,y+98);else if(tag)x.fillText(tag,tx,y+98);
+    if(imp&&!s.nonCop&&!s.vinta&&r.p>0&&num(s.quota)>0){x.fillStyle=r.net>=0?C.pos:C.neg;x.font='700 24px '+F;x.fillText('Netto a testa '+sg(r.net),tx,y+132)}
+    x.textAlign='right';x.fillStyle=C.mu;x.font='600 22px '+F;x.fillText('QUOTA',W-P-32,y+50);
+    x.fillStyle=C.ink;x.font='800 48px '+F;x.fillText(num(s.quota)>0?num(s.quota).toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2}):'–',W-P-32,y+102);x.textAlign='left';
+    y+=RH+18;
+  });
+  if(imp){y+=12;x.fillStyle=C.ac;shareRR(x,P,y,W-2*P,150,22);x.fill();
+    x.fillStyle='#d7efe5';x.font='600 26px '+F;x.fillText('Se vince Eurobet fino in fondo',P+32,y+58);
+    x.font='600 22px '+F;x.fillText('Vincita netta '+eur(a.V),P+32,y+100);
+    x.fillStyle='#fff';x.font='800 50px '+F;x.textAlign='right';x.fillText(sg(a.fin),W-P-32,y+80);x.font='600 22px '+F;x.fillText('a testa',W-P-32,y+116);x.textAlign='left';y+=150}
+  x.fillStyle=C.mu;x.font='600 20px '+F;x.textAlign='center';x.fillText('Solo a scopo informativo · gioca responsabilmente · 18+',W/2,H-40);x.textAlign='left';
+  return cv;
+}
+function shareMake(){
+  var im=$('#shimg'),ck=$('#shimp');if(!im)return;shareBlob=null;$('#shgo').disabled=true;
+  var go=function(){var cv=shareCanvas(!ck||ck.checked);im.src=cv.toDataURL('image/png');cv.toBlob(function(b){shareBlob=b;var g=$('#shgo');if(g)g.disabled=false},'image/png')};
+  if(document.fonts&&document.fonts.load)Promise.all([document.fonts.load("800 50px 'Manrope'"),document.fonts.load("600 24px 'Manrope'")]).then(go,go);else go();
+}
+function shareName(){return String(pg().name||'calcolo').replace(/[^\w\-]+/g,'_').slice(0,40)+'.png'}
+function shareDl(){if(!shareBlob)return;var u=URL.createObjectURL(shareBlob),l=document.createElement('a');l.href=u;l.download=shareName();document.body.appendChild(l);l.click();l.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000)}
 /* ---------- CONTI TRA BIAGIO E MARIO ---------- */
 var trAll=[],SALDO='Saldo debiti calcoli';
 function covSum(p){var b=0,m=0;(p.steps||[]).forEach(function(s){if(s.nonCop)return;b+=num(s.cb);m+=num(s.cm)});return{b:Math.round(b*100)/100,m:Math.round(m*100)/100}}
@@ -773,7 +817,7 @@ document.addEventListener('input',function(e){
   }
 });
 document.addEventListener('change',function(e){
-  var el=e.target;if(tab==='calc'&&el.id==='es'){calcUpd();return}if(tab!=='calc'||!el.dataset.c)return;
+  var el=e.target;if(el.id==='shimp'){shareMake();return}if(tab==='calc'&&el.id==='es'){calcUpd();return}if(tab!=='calc'||!el.dataset.c)return;
   var s=pg().steps[+el.closest('.step').dataset.i];
   s[el.dataset.c]=el.checked;if(el.checked)s[el.dataset.c==='nonCop'?'vinta':'nonCop']=false;
   calcSteps();calcUpd();
@@ -785,6 +829,10 @@ var A={
   futdel:function(b){if(!confirm('Eliminare questo cliente futuro?'))return;docs.clients.data.future.splice(+b.closest('[data-fi]').dataset.fi,1);cliView();bar()},
   futmake:function(b){var i=+b.closest('[data-fi]').dataset.fi,f=docs.clients.data.future[i];if(!String(f.nome||'').trim()){alert('Scrivi prima il nome');return}docs.clients.data.list.push({id:nid(),nome:f.nome,siti:[{sito:f.sito||'',account:'',password:''}],note:f.note||'',owner:'',generated:'0',clientShare:'0',clientPaid:'0',credited:0});docs.clients.data.future.splice(i,1);cliView();bar()},
   closemod:function(){$('#mod').innerHTML='';ed=null},
+  share:function(){modal('Condividi calcolo','<label class="chk" style="margin:0 0 12px"><input type="checkbox" id="shimp" checked> Mostra importi (puntate e netto a testa)</label><img id="shimg" alt="Anteprima immagine" style="width:100%;border:1px solid var(--line);border-radius:8px;display:block;background:var(--field);min-height:120px"><p class="meta">Nell\'immagine non compaiono nomi né chi copre cosa.</p><div class="actions"><button class="btn" data-act="sharedl">Scarica PNG</button><button class="btn pri" id="shgo" data-act="sharego" disabled>Condividi</button></div>');shareMake()},
+  sharedl:shareDl,
+  sharego:function(){if(!shareBlob)return;var f;try{f=new File([shareBlob],shareName(),{type:'image/png'})}catch(e){shareDl();return}
+    if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f],title:pg().name}).catch(function(e){if(e&&e.name!=='AbortError')shareDl()});else shareDl()},
   newentry:function(){modal('Nuovo movimento','<div class="form-stack"><div class="cell"><label>Tipo</label><select id="et"><option value="1">Entrata</option><option value="-1">Uscita</option></select></div><div class="cell"><label>Importo (€)</label><input id="ev" inputmode="decimal"></div><div class="cell"><label>Descrizione</label><input id="ed"></div><button class="btn pri" data-act="wen">Aggiungi movimento</button></div>')},
   newop:function(){modal('Nuova operazione','<div class="form-stack"><div class="cell"><label>Sito</label><div id="osw">'+siteField('Snai')+'</div></div><div class="cell"><label>Cliente / dettaglio (facoltativo)</label><input id="osd" placeholder="Es. Miriam"></div><div class="two"><div class="cell"><label>Caricato (€)</label><input id="oc" inputmode="decimal"></div><div class="cell"><label>Tornato (€)</label><input id="ot" inputmode="decimal"></div></div><button class="btn pri" data-act="wop">Aggiungi operazione</button></div>')},
   newclient:function(){modal('Nuovo cliente','<div class="cell"><label>Nome cliente</label><input id="ncn"></div><button class="btn pri" data-act="cadd" style="width:100%">Aggiungi cliente</button>')},
