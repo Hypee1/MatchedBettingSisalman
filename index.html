@@ -403,29 +403,28 @@ html[data-font=mono] body{font-family:ui-monospace,'SF Mono',Menlo,Consolas,mono
 .exline{font-size:12px;color:var(--muted);background:var(--field);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-variant-numeric:tabular-nums;line-height:1.6}
 .exline b{color:var(--ink)}
 /* intro MatchedBetting */
-#mbs{position:fixed;inset:0;z-index:300;display:grid;place-items:center;background:radial-gradient(900px 600px at 50% 38%,color-mix(in srgb,var(--accent) 16%,var(--bg)),var(--bg) 70%);overflow:hidden;-webkit-user-select:none;user-select:none;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-.mbs-in{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:22px;padding:24px}
-.mbs-in .sm-mark{width:86px;height:86px;animation:mbPop .7s cubic-bezier(.2,.9,.3,1.4) both}
-.mbs-word{display:flex;align-items:center;gap:8px;font-weight:800;font-size:clamp(30px,9vw,48px);letter-spacing:-.035em;color:var(--ink);line-height:1}
-.mbs-word .a{animation:mbUp .6s .25s cubic-bezier(.2,.8,.2,1) both}
-.mbs-bet{position:relative;padding:6px 14px 9px;border-radius:14px;background:var(--accent);color:var(--accent-ink);animation:mbUp .6s .4s cubic-bezier(.2,.8,.2,1) both,mbGlow 1.6s 1.1s ease-in-out infinite;transition:transform .12s ease}
-.mbs-bet.press{transform:scale(.9)}
-.mbs-tag{font-size:11px;color:var(--muted);letter-spacing:.24em;text-transform:uppercase;font-weight:800;animation:mbUp .6s .55s both}
-.mbs-hand{position:absolute;left:0;top:0;z-index:1;font-size:60px;line-height:1;transform:translate(105vw,105vh) rotate(-24deg);transition:transform .85s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 10px 14px rgba(0,0,0,.28));pointer-events:none;will-change:transform}
-.mbs-hand i{display:block;font-style:normal;transition:transform .12s ease}
-#mbs.wait .mbs-hand i{animation:mbBob 1.1s ease-in-out infinite}
-.mbs-hand.press i{transform:scale(.84) translateY(7px)}
-.mbs-hint{position:absolute;z-index:1;bottom:calc(52px + env(safe-area-inset-bottom));left:0;right:0;text-align:center;font-size:14px;font-weight:750;color:var(--muted);opacity:0;transform:translateY(8px);transition:opacity .35s,transform .35s}
-#mbs.wait .mbs-hint{opacity:1;transform:none}
-.mbs-ripple{position:absolute;z-index:1;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;border:3px solid var(--accent);animation:mbRip .65s ease-out forwards;pointer-events:none}
-.mbs-wipe{position:absolute;inset:0;z-index:2;background:var(--accent);clip-path:circle(0 at var(--x,50%) var(--y,50%));transition:clip-path .65s cubic-bezier(.7,0,.2,1)}
-#mbs.go .mbs-wipe{clip-path:circle(150% at var(--x,50%) var(--y,50%))}
-#mbs.out{opacity:0;transition:opacity .5s ease}
-@keyframes mbPop{from{opacity:0;transform:scale(.4) rotate(-12deg)}to{opacity:1;transform:none}}
-@keyframes mbUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
-@keyframes mbGlow{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 45%,transparent)}50%{box-shadow:0 0 0 14px color-mix(in srgb,var(--accent) 0%,transparent)}}
-@keyframes mbBob{50%{transform:translateY(-12px)}}
-@keyframes mbRip{to{transform:scale(8);opacity:0}}
+#mbs{--mb-bg:#0b0d0c;--mb-ink:#f2f4f3;--mb-ac:#d2b170;position:fixed;inset:0;z-index:300;display:grid;place-items:center;background:var(--mb-bg);color:var(--mb-ink);overflow:hidden;clip-path:inset(0 0 0 0);transition:clip-path .85s cubic-bezier(.76,0,.24,1);-webkit-user-select:none;user-select:none;cursor:default}
+#mbs::before{content:"";position:absolute;inset:-20%;background:radial-gradient(520px 360px at 50% 46%,color-mix(in srgb,var(--mb-ac) 16%,transparent),transparent 70%);opacity:0;animation:mbFade 1.4s .2s ease forwards}
+#mbs.out{clip-path:inset(0 0 100% 0)}
+.mbs-in{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;padding:24px;transition:transform .85s cubic-bezier(.76,0,.24,1),opacity .6s ease}
+#mbs.out .mbs-in{transform:translateY(-60px);opacity:0}
+.mbs-logo{width:76px;height:76px;fill:none;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
+.mbs-logo .f{stroke:color-mix(in srgb,var(--mb-ink) 22%,transparent);stroke-width:1.4;stroke-dasharray:1;stroke-dashoffset:1;animation:mbDraw 1.1s .1s cubic-bezier(.65,0,.35,1) forwards}
+.mbs-logo .m{stroke:var(--mb-ink);stroke-width:5;stroke-dasharray:1;stroke-dashoffset:1;animation:mbDraw .9s .35s cubic-bezier(.65,0,.35,1) forwards}
+.mbs-logo .g{stroke:var(--mb-bg);stroke-width:8.9;stroke-dasharray:1;stroke-dashoffset:1;animation:mbDraw .8s .85s cubic-bezier(.65,0,.35,1) forwards}
+.mbs-logo .s{stroke:var(--mb-ac);stroke-width:4.5;stroke-dasharray:1;stroke-dashoffset:1;animation:mbDraw .8s .85s cubic-bezier(.65,0,.35,1) forwards}
+.mbs-word{margin-top:26px;overflow:hidden;padding:2px 4px;font-weight:800;font-size:clamp(30px,8vw,44px);line-height:1.08;letter-spacing:-.035em}
+.mbs-word span{display:block;transform:translateY(110%);animation:mbRise .9s 1.05s cubic-bezier(.2,.8,.2,1) forwards}
+.mbs-word em{font-style:normal;color:var(--mb-ac)}
+.mbs-tag{margin-top:12px;font-size:10.5px;font-weight:700;letter-spacing:.34em;text-transform:uppercase;color:color-mix(in srgb,var(--mb-ink) 55%,transparent);opacity:0;animation:mbFade .7s 1.35s ease forwards}
+.mbs-bar{margin-top:30px;width:150px;height:2px;border-radius:2px;background:color-mix(in srgb,var(--mb-ink) 12%,transparent);overflow:hidden}
+.mbs-bar i{display:block;height:100%;background:var(--mb-ac);transform:scaleX(0);transform-origin:left;animation:mbLoad 1.75s .25s cubic-bezier(.65,0,.35,1) forwards}
+.mbs-foot{position:absolute;z-index:1;bottom:calc(28px + env(safe-area-inset-bottom));left:0;right:0;text-align:center;font-size:10px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:color-mix(in srgb,var(--mb-ink) 32%,transparent);opacity:0;animation:mbFade .7s 1.5s ease forwards}
+#mbs.quick *,#mbs.quick::before{animation-duration:.25s!important;animation-delay:0s!important}
+@keyframes mbDraw{to{stroke-dashoffset:0}}
+@keyframes mbRise{to{transform:none}}
+@keyframes mbFade{to{opacity:1}}
+@keyframes mbLoad{to{transform:scaleX(1)}}
 /* benvenuto "Ciao Biagio!" */
 #wl{position:fixed;inset:0;z-index:250;display:grid;place-items:center;background:radial-gradient(800px 520px at 50% 30%,color-mix(in srgb,var(--accent) 12%,var(--bg)),var(--bg) 70%);transition:opacity .5s ease,transform .5s ease}
 #wl.off{opacity:0;transform:scale(1.05);pointer-events:none}
@@ -472,7 +471,7 @@ html[data-font=mono] body{font-family:ui-monospace,'SF Mono',Menlo,Consolas,mono
 </script>
 </head>
 <body>
-<div id="mbs" role="button" tabindex="0" aria-label="Tocca Betting per entrare"><div class="mbs-in"><svg class="sm-mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" class="sm-bg"/><path d="M13 47V17l19 19.5L51 17v30" fill="none" class="sm-m" stroke-width="5"/><path d="M40.5 22c-2.1-2.4-5-3.5-8.3-3.5-4.6 0-7.8 2.5-7.8 6.1 0 8.6 16.4 5.4 16.4 14.4 0 4.1-3.7 6.8-8.5 6.8-3.6 0-6.8-1.3-9-3.9" fill="none" class="sm-gap" stroke-width="8.9" stroke-linecap="round"/><path d="M40.5 22c-2.1-2.4-5-3.5-8.3-3.5-4.6 0-7.8 2.5-7.8 6.1 0 8.6 16.4 5.4 16.4 14.4 0 4.1-3.7 6.8-8.5 6.8-3.6 0-6.8-1.3-9-3.9" fill="none" class="sm-s" stroke-width="4.5" stroke-linecap="round"/></svg><div class="mbs-word"><span class="a">Matched</span><span class="mbs-bet">Betting</span></div><div class="mbs-tag">by SisalMan</div></div><div class="mbs-hand" aria-hidden="true"><i>👆</i></div><div class="mbs-hint">Tocca «Betting» per entrare</div><div class="mbs-wipe"></div></div>
+<div id="mbs" aria-hidden="true"><div class="mbs-in"><svg class="mbs-logo" viewBox="0 0 64 64"><rect class="f" x="1" y="1" width="62" height="62" rx="15" pathLength="1"/><path class="m" pathLength="1" d="M13 47V17l19 19.5L51 17v30"/><path class="g" pathLength="1" d="M40.5 22c-2.1-2.4-5-3.5-8.3-3.5-4.6 0-7.8 2.5-7.8 6.1 0 8.6 16.4 5.4 16.4 14.4 0 4.1-3.7 6.8-8.5 6.8-3.6 0-6.8-1.3-9-3.9"/><path class="s" pathLength="1" d="M40.5 22c-2.1-2.4-5-3.5-8.3-3.5-4.6 0-7.8 2.5-7.8 6.1 0 8.6 16.4 5.4 16.4 14.4 0 4.1-3.7 6.8-8.5 6.8-3.6 0-6.8-1.3-9-3.9"/></svg><div class="mbs-word"><span>Sisal<em>Man</em></span></div><div class="mbs-tag">Matched Betting</div><div class="mbs-bar"><i></i></div></div><div class="mbs-foot">Note &amp; Wallet</div></div>
 <div id="root"></div>
 <script>(function(){var h=document.documentElement,t="light",d=null;try{t=localStorage.getItem("nw_theme")==="dark"?"dark":"light";d=localStorage.getItem("nw_dev")}catch(e){}h.dataset.theme=t;if(d==="pc"||d==="mobile")h.dataset.dev=d;var m=document.querySelector("meta[name=theme-color]");if(m)m.setAttribute("content",t==="dark"?"#111b16":"#ffffff")})()</script>
 <script>/* Aspetto personalizzato (salvato su questo dispositivo) */
@@ -1394,25 +1393,13 @@ function enterAnim(){var h=document.documentElement;h.classList.remove('nw-enter
 var splashP=new Promise(function(res){
   var sp=document.getElementById('mbs');if(!sp){res();return}
   if(/[?&#](recensione|area\b)/.test(location.search+location.hash)){sp.remove();res();return}
-  var hand=sp.querySelector('.mbs-hand'),bet=sp.querySelector('.mbs-bet'),done=false,reduce=false;
+  var reduce=false,seen=false,done=false;
   try{reduce=matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
-  function place(){var r=bet.getBoundingClientRect(),h=hand.getBoundingClientRect();hand.style.transform='translate('+Math.round(r.left+r.width*.6-h.width*.42)+'px,'+Math.round(r.top+r.height*.5)+'px) rotate(-10deg)'}
-  function tap(){if(done)return;done=true;sp.classList.remove('wait');var c=acx();try{if(c&&c.state!=='running')c.resume()}catch(e){}
-    place();var r=bet.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
-    hand.classList.add('press');bet.classList.add('press');sfxTap();vib(15);
-    var rp=document.createElement('span');rp.className='mbs-ripple';rp.style.left=x+'px';rp.style.top=y+'px';sp.appendChild(rp);
-    sp.style.setProperty('--x',x+'px');sp.style.setProperty('--y',y+'px');
-    setTimeout(function(){hand.classList.remove('press');bet.classList.remove('press')},170);
-    setTimeout(function(){sp.classList.add('go')},reduce?0:280);
-    setTimeout(function(){enterAnim();sp.classList.add('out');res()},reduce?150:900);
-    setTimeout(function(){if(sp.parentNode)sp.remove()},reduce?700:1500)}
-  sp.addEventListener('pointerdown',function(e){e.preventDefault();tap()});
-  sp.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' ')tap()});
-  setTimeout(place,reduce?0:950);
-  setTimeout(function(){if(done)return;var c=acx();
-    var check=function(){if(done)return;/* se il browser lascia suonare entra da solo, altrimenti aspetta il tuo tocco (serve per il suono) */
-      if(!c||muted()||c.state==='running')tap();else sp.classList.add('wait')};
-    try{var p=c&&c.resume?c.resume():null;if(p&&p.then)Promise.race([p,new Promise(function(r){setTimeout(r,250)})]).then(check,check);else check()}catch(e){check()}},reduce?300:1950);
+  try{seen=!!sessionStorage.getItem('nw_intro');sessionStorage.setItem('nw_intro','1')}catch(e){}
+  if(seen||reduce)sp.classList.add('quick');
+  function finish(){if(done)return;done=true;sp.classList.add('out');enterAnim();res();setTimeout(function(){if(sp.parentNode)sp.remove()},950)}
+  setTimeout(finish,reduce?250:seen?650:2250);
+  sp.addEventListener('pointerdown',function(){setTimeout(finish,120)});
 });
 
 /* ---- benvenuto dopo il login: "Ciao Biagio!" + caricamento 1-100 ---- */
@@ -1420,7 +1407,7 @@ function welcome(u){
   app();
   var old=$('#wl');if(old)old.remove();
   var ov=document.createElement('div');ov.id='wl';ov.setAttribute('role','status');
-  ov.innerHTML='<div class="wl-in"><div class="wl-av">'+(u==='biagio'?'BB':'MR')+'</div><h1 class="wl-h">Ciao '+esc(NAMES[u]||u)+'! <span class="wave">👋</span></h1><p class="wl-sub">Sto preparando il tuo spazio…</p><div class="wl-num"><b id="wln">1</b><small>%</small></div><div class="wl-bar"><i id="wlb"></i></div><div class="wl-ip" id="wlip">'+icon('shield')+'Registro il dispositivo…</div></div>';
+  ov.innerHTML='<div class="wl-in"><div class="wl-av">'+(u==='biagio'?'BB':'MR')+'</div><h1 class="wl-h">Ciao '+esc(NAMES[u]||u)+'!</h1><p class="wl-sub">Sto preparando il tuo spazio…</p><div class="wl-num"><b id="wln">1</b><small>%</small></div><div class="wl-bar"><i id="wlb"></i></div><div class="wl-ip" id="wlip">'+icon('shield')+'Registro il dispositivo…</div></div>';
   document.body.appendChild(ov);
   getIpGeo().then(function(r){var el=$('#wlip');if(el)el.innerHTML=icon('shield')+'Dispositivo registrato · IP '+esc(r.ip)+(r.geo?' · '+esc(r.geo):'')}).catch(function(){});
   splashP.then(function(){
