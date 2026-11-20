@@ -1,0 +1,113 @@
+# MACE POWER — Quality Control System (GitHub Pages + Firebase)
+
+Copia del gestionale qualità (controlli di accettazione, NC, scadenziario, DDT, commesse, audit) con:
+
+- **Accesso protetto**: due profili, *Biagio (Admin)* e *Ospite*, ognuno con la sua password (Firebase Authentication).
+- **Ospite in sola lettura**: vede tutto ma non modifica niente. Su ogni controllo, NC, DDT e commessa ha il tasto **Sollecita** e sotto **"Vuoi aggiungere note?"**.
+- **Segnalazioni**: solleciti e note arrivano in tempo reale nel portale admin (campanella + pagina Segnalazioni). Puoi rispondere e l'ospite vede la risposta.
+- **Console accessi** (solo admin): login riusciti e falliti, IP, città, provider, tipo di dispositivo, sistema operativo, browser, sessioni online e cosa ha guardato l'ospite.
+- Firme digitali, allegati (foto compresse in automatico, PDF fino a 700 KB), PDF stampabili, export CSV, backup JSON.
+- Disconnessione automatica dopo 30 minuti di inattività. La sessione dura finché non chiudi il browser.
+
+> In parole povere: il codice su GitHub è come la **porta del magazzino**, la vedono tutti. I **dati** sono dentro Firebase, chiusi a chiave: senza la password giusta il database risponde "accesso negato". Per questo il file `seed-data.json` **non va mai caricato su GitHub**.
+
+---
+
+## Novità (novembre 2026): Audit clienti, criticità NC, anagrafica unica, 4 temi
+
+**⚠ Da fare una volta:** Firebase Console → Firestore → **Regole** → incolla di nuovo tutto `firestore.rules` → **Pubblica**.
+Servono per le nuove collezioni `audit_clienti`, `eventi`, `soggetti`, `allegati_parti`, `near_miss`, `richieste`.
+
+- **Audit clienti** (`#/registro-audit`, `#/audit-cliente`): registro separato MACE POWER / MACE SERVICE. Per ogni audit: report PDF allegato (fino a 8 MB, salvato a pezzi), cliente del test, cliente finale, tipo, data inizio e fine, esito (positivo / parzialmente positivo / parzialmente negativo / negativo), n° rilievi, note. CSV del registro.
+- **Livello di criticità NC** (5 livelli): 1 Trascurabile · 2 Lieve · 3 Moderata · 4 Grave · 5 Critica. Si sceglie nel passo 1 della NC, compare nel registro (colonna + filtro), nel PDF e nel CSV.
+- **Report annuale** (`#/report-nc`): per anno e azienda — NC per criticità e per mese, tempo medio di chiusura, origine, fornitori/controparti con controlli e NC, esiti audit. Export **PDF** e **CSV**.
+- **Fornitori & Clienti** (`#/anagrafica`): anagrafica unica. «Tecnosteel», «TECNOSTEEL», «Tecnosteel S.r.l.» = stesso soggetto. Nei campi fornitore/controparte/cliente compaiono i suggerimenti e la grafia viene uniformata da sola. Pulsanti per uniformare le grafie già salvate e unire i doppioni scritti male.
+- **Near Miss** (`#/registro-near-miss`, `#/near-miss`): quasi incidenti, registro separato Power / Service. Reparto, ora, persone coinvolte, tipo di pericolo, descrizione, cosa poteva succedere, gravità possibile + probabilità (con criticità 1-5 suggerita), foto, causa, azioni immediate, azioni correttive con responsabile e scadenza (vanno nel calendario), chiusura, verifica efficacia, firme, PDF e CSV.
+- **Richieste effettuate** (`#/registro-richieste`, `#/richiesta`): richieste di acquisto (es. funi metalliche per sollevamento), DPI, ricambi, manutenzioni, tarature, servizi. Oggetto, quantità, priorità, «serve entro» (nel calendario), richiedente, fornitore, preventivi allegati, percorso di stato (inviata → in valutazione → approvata → ordinata → evasa, oppure rifiutata/annullata), storico aggiornamenti con data, esito con n° ordine e consegna, PDF e CSV.
+- **Calendario & Scadenze**: scadenze NC + audit + eventi/scadenze creati a mano, visibile anche nella **Dashboard**.
+- **Temi**: bianco, grigio chiaro, grigio scuro, nero (icona tavolozza in alto).
+- **Firme**: ritagliate e salvate senza deformazioni; nel PDF mantengono le proporzioni (anche quelle vecchie).
+- **Rimossi** dal menu: Commesse, Certificati & DDT, Archivio & PDF (la ricerca globale in alto resta, su NC, controlli, audit e rientri). I dati vecchi restano in Firebase.
+
+## Novità: Assegnazione Strumenti, Rientri Trasformatori, NC Mace Service
+
+**⚠ Da fare una volta:** Firebase Console → Firestore → **Regole** → incolla di nuovo tutto `firestore.rules` → **Pubblica**.
+Senza questo passaggio le nuove sezioni danno "accesso negato" (le regole non si aggiornano da GitHub).
+
+- **Assegnazione Strumenti** (`#/strumenti`): anagrafica operatori (nome, cognome, area: Avvolgeria / Montaggio / Trattamento / Collaudi / Altro + specifica, azienda Power o Service).
+  Assegnazione: azienda → operatore in ordine alfabetico → strumento (Metro 2M / 3M / 5M o «Nuovo…», che resta in elenco). Contatore dei giorni dall'assegnazione, restituzione, cronologia per operatore e per strumento, PDF e CSV del registro.
+- **Rientro Trasformatore** (`#/rientro`) e **Registro Rientri** (`#/registro-rientri`): scheda MAC PA4190/1.
+  Parte 1 accettazione (garanzia Sì/No/Da valutare, azienda, DDT, data, causa, mittente, dati di targa, accessori SI/NO con note, chi ha accettato).
+  Parte 2 collaudo elettrico e ispezione (prove OK/KO con note, riscontro all'apertura, lavori da preventivare) compilabile anche dopo, dal tasto **Collaudo** nel registro.
+  Registro con schede Power / Service / Tutte, filtri, PDF della singola scheda e PDF del registro.
+- **NC Mace Power / Mace Service**: alla creazione di una NC la scelta dell'azienda è obbligatoria. Service ha registro e numerazione separati e il suo logo su schermo e nel PDF. Le NC già esistenti restano MACE POWER.
+- **Resistenze Fuori Cassa** (`#/resistenze`): misura resistenze avvolgimenti AT/BT (fino a 3 letture, squilibrio), riporto a 75 °C, corrente nominale, perdite I²R e confronto automatico con la specifica (tolleranze IEC 60076-1 modificabili). Registro con esito, Pmax %, PDF singolo e registro, CSV, tasto Duplica.
+- Il backup JSON include anche rientri, operatori, assegnazioni ed elenco strumenti.
+
+---
+
+## Messa in funzione (circa 15 minuti, una volta sola)
+
+### 1. Firebase: crea i due utenti
+1. Apri <https://console.firebase.google.com> → progetto **controllo-quality**.
+2. **Authentication** → *Inizia* → scheda **Metodo di accesso** → abilita **Email/password**.
+3. Scheda **Utenti** → *Aggiungi utente*:
+   - `admin@macepower.qc` → una password forte, solo tua.
+   - `ospite@macepower.qc` → la password da dare ai superiori.
+
+   Le email non devono esistere davvero: servono solo come "nome utente".
+
+### 2. Firebase: crea il database e incolla le regole
+1. **Firestore Database** → *Crea database* → modalità **produzione** → regione `europe-west8 (Milano)`.
+2. Scheda **Regole** → cancella tutto → incolla il contenuto del file `firestore.rules` → **Pubblica**.
+
+### 3. Firebase: autorizza il dominio GitHub
+**Authentication → Impostazioni → Domini autorizzati → Aggiungi dominio** → `hypee1.github.io`
+(se usi un altro account GitHub, metti `<tuo-utente>.github.io`).
+
+### 4. GitHub: pubblica il sito
+1. Crea un nuovo repository, ad esempio `qc-macepower`.
+2. Carica **tutti i file di questa cartella** (`index.html`, `css/`, `js/`, `vendor/`, `firestore.rules`, `.nojekyll`, …), **ma non** `seed-data.json`.
+3. **Settings → Pages → Build and deployment** → *Deploy from a branch* → `main` / `(root)` → Save.
+4. Dopo 1-2 minuti il sito è su `https://hypee1.github.io/qc-macepower/`.
+
+### 5. Carica i dati del vecchio sito
+1. Apri il sito ed entra come **Biagio (Admin)**.
+2. Menu **Impostazioni & Import** → *Scegli file JSON* → scegli `seed-data.json` → **Importa nel database**.
+3. Fatto: 159 controlli, 135 NC, 7 DDT e 6 commesse. Se ripeti l'import non si creano doppioni.
+
+### 6. Consigliato: blocca la chiave API sul tuo dominio
+<https://console.cloud.google.com/apis/credentials> (progetto *controllo-quality*) → la chiave "Browser key" →
+**Restrizioni applicazione: Referrer HTTP** → aggiungi `https://hypee1.github.io/*` → Salva.
+
+---
+
+## Cosa è stato portato dal vecchio sistema
+
+| Dato | Quantità | Note |
+|---|---|---|
+| Controlli accettazione | 159 (42 carpenteria + 117 produzione) | 185 quote recuperate dal vecchio database su 37 controlli che su Emergent erano vuoti; dati vernice su 32 controlli |
+| Non conformità | 135 | origini uniformate (es. `reclamo_cliente` → *Reclamo Cliente*); 27 aggiornamenti storici; firme Emergent conservate |
+| Certificati & DDT | 7 | con materiali e flag certificato |
+| Commesse | 6 | con distinta materiali (erano state eliminate da Emergent: puoi deselezionarle all'import) |
+| Allegati vecchi | 105 controlli + 104 NC | solo **nome file**: i file veri stavano sul server Altervista. Se li recuperi, imposta `legacyFilesBase` in `js/config.js` |
+
+Non importate: 7 NC di prova del vecchio database ("Rapporto1", "Funzione1"…).
+
+## Migliorie rispetto al sito Emergent
+- Esito PASS/FAIL che accetta la **virgola** (`1803,5`). Prima `1,1` veniva letto come `1`.
+- Senza tolleranza l'esito è **n.d.**, non FAIL. Avviso se ci sono quote FAIL e la conformità è "Conforme"; pulsante per impostarla dagli esiti.
+- **Modelli di quote** per tipo (Cassa, Coperchio, Nucleo…), colonna U.M. e Δ, pulsante **Duplica** controllo.
+- Numero NC suggerito nel formato che usi davvero (**28/26**) e avviso se il numero esiste già.
+- Ogni firma ha il **suo firmatario** (prima tutte prendevano il nome del responsabile rilevazione).
+- Origine NC con **Reclamo Fornitore**; **Vista completa** della NC su una pagina (comoda per i superiori).
+- Colonna "Tipo" dei DDT corretta (prima mostrava BOZZA / CON RISERVA).
+- **Storico aggiornamenti** sulle NC, fornitori suggeriti mentre scrivi, filtri per anno e classe, export CSV, backup JSON.
+- Allegati salvati a parte (non appesantiscono le schede) e compressi in automatico.
+
+## Note tecniche
+- Nessuna build: HTML + JavaScript (moduli ES). Le librerie sono nella cartella `vendor/` (Preact + htm, Firebase 11, jsPDF), così il sito non dipende da CDN esterni.
+- Piano Firebase gratuito (Spark): bastano 50.000 letture al giorno. Gli allegati stanno in Firestore, quindi non serve Storage, che richiede il piano a pagamento.
+- IP e città vengono dai servizi gratuiti `ipapi.co`, `ipwho.is` e `ipify`. Se un antivirus o un adblock li blocca, l'IP risulta "n.d." ma il resto viene registrato lo stesso.
+- Il registro audit e gli accessi **non si possono modificare né cancellare** dal sito (lo impediscono le regole).
+- Per cambiare le email degli account: `js/config.js` **e** `firestore.rules`, devono essere identiche.
